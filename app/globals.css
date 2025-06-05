@@ -1,93 +1,37 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
 @layer base {
   :root {
     --background: 0 0% 100%;
     --foreground: 0 0% 0%;
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 0%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 0%;
     --primary: 262 67% 61%; /* Farcaster Purple */
     --primary-foreground: 0 0% 100%;
     --secondary: 54 91% 60%; /* Brutal Yellow */
     --secondary-foreground: 0 0% 0%;
+    --muted: 0 0% 96%;
+    --muted-foreground: 0 0% 45%;
+    --accent: 54 91% 60%;
+    --accent-foreground: 0 0% 0%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
     --border: 0 0% 0%;
     --input: 0 0% 100%;
     --ring: 262 67% 61%;
+    --radius: 0rem;
   }
+}
 
+@layer base {
   * {
-    @apply border-brutal-black;
+    @apply border-border;
   }
-
   body {
-    @apply bg-white text-brutal-black font-brutal;
-    font-feature-settings:
-      "rlig" 1,
-      "calt" 1;
+    @apply bg-background text-foreground;
   }
-}
-
-@layer components {
-  /* Neobrutalism Button Styles */
-  .btn-brutal {
-    @apply font-brutal-base uppercase tracking-wide px-6 py-3 border-brutal border-brutal-black bg-white text-brutal-black shadow-brutal transition-all duration-150;
-  }
-
-  .btn-brutal:hover {
-    @apply shadow-brutal-sm translate-x-1 translate-y-1;
-  }
-
-  .btn-brutal:active {
-    @apply shadow-none translate-x-1 translate-y-1;
-  }
-
-  .btn-brutal-primary {
-    @apply btn-brutal bg-farcaster-500 text-white;
-  }
-
-  .btn-brutal-secondary {
-    @apply btn-brutal bg-brutal-yellow text-brutal-black;
-  }
-
-  /* Neobrutalism Card Styles */
-  .card-brutal {
-    @apply border-brutal border-brutal-black bg-white shadow-brutal p-6;
-  }
-
-  .card-brutal-hover:hover {
-    @apply shadow-brutal-lg -translate-x-1 -translate-y-1 transition-all duration-200;
-  }
-
-  /* Neobrutalism Input Styles */
-  .input-brutal {
-    @apply border-brutal border-brutal-black px-4 py-3 font-brutal-base bg-white focus:outline-none focus:shadow-brutal-sm focus:translate-x-0.5 focus:translate-y-0.5 transition-all duration-150;
-  }
-
-  /* Neobrutalism Typography */
-  .text-brutal-title {
-    @apply font-brutal-3xl text-brutal-black uppercase tracking-tight;
-  }
-
-  .text-brutal-subtitle {
-    @apply font-brutal-xl text-brutal-black uppercase tracking-wide;
-  }
-
-  .text-brutal-body {
-    @apply font-brutal-base text-brutal-black;
-  }
-}
-
-/* Custom scrollbar for brutal aesthetic */
-::-webkit-scrollbar {
-  width: 12px;
-}
-
-::-webkit-scrollbar-track {
-  background: #ffffff;
-  border: 3px solid #000000;
-}
-
-::-webkit-scrollbar-thumb {
-  background: #8a63d2;
-  border: 2px solid #000000;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: #7c3aed;
 }
