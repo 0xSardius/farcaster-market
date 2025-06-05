@@ -1,7 +1,7 @@
 "use client";
 
-import { Search, Menu, User } from "lucide-react";
-import { Button } from "@/components/ui/Button";
+import { Search, User } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { useUser } from "@/context/UserContext";
 
 export default function Header() {

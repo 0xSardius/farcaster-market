@@ -8,7 +8,7 @@ export default function TestPage() {
       <h1 className="text-2xl font-bold">Neobrutalism Test</h1>
 
       <Button>Test Button</Button>
-      <Button variant="secondary">Secondary Button</Button>
+      <Button variant="neutral">Secondary Button</Button>
 
       <Card className="w-96">
         <CardHeader>
