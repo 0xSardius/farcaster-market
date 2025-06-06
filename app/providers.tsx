@@ -14,7 +14,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
       <ThirdwebProvider
         activeChain={base}
         clientId={process.env.NEXT_PUBLIC_THIRDWEB_CLIENT_ID}
-        theme="light"
+        supportedChains={[base]}
       >
         <MiniKitProvider
           apiKey={process.env.NEXT_PUBLIC_ONCHAINKIT_API_KEY}

@@ -3,7 +3,7 @@
 import { useEffect } from "react";
 import { useMiniKit } from "@coinbase/onchainkit/minikit";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Search, Heart, Share2 } from "lucide-react";
@@ -19,10 +19,10 @@ export default function Home() {
 
   // Mock NFT data for demo
   const mockNFTs = [
-    {../components/nft/DemoComponents
-      id: "1",../components/nft/DemoComponents
-      name: "Cool Farc../components/nft/DemoComponents
-      image: "https://pics../components/nft/DemoComponents,
+    {
+      id: "1",
+      name: "Cool Farcaster NFT",
+      image: "https://picsum.photos/300/300?random=1",
       price: "0.05",
       collection: "FC AVATARS",
     },
@@ -102,19 +102,19 @@ export default function Home() {
             TRENDING
           </Badge>
           <Badge
-            variant="secondary"
+            variant="neutral"
             className="font-black uppercase whitespace-nowrap"
           >
             ART
           </Badge>
           <Badge
-            variant="secondary"
+            variant="neutral"
             className="font-black uppercase whitespace-nowrap"
           >
             PFPS
           </Badge>
           <Badge
-            variant="secondary"
+            variant="neutral"
             className="font-black uppercase whitespace-nowrap"
           >
             GAMING
@@ -137,10 +137,10 @@ export default function Home() {
 
                 {/* Action Buttons */}
                 <div className="absolute top-2 right-2 flex space-x-1">
-                  <Button size="sm" variant="secondary" className="w-8 h-8 p-0">
+                  <Button size="sm" variant="neutral" className="w-8 h-8 p-0">
                     <Heart className="w-4 h-4" />
                   </Button>
-                  <Button size="sm" variant="secondary" className="w-8 h-8 p-0">
+                  <Button size="sm" variant="neutral" className="w-8 h-8 p-0">
                     <Share2 className="w-4 h-4" />
                   </Button>
                 </div>
@@ -148,7 +148,7 @@ export default function Home() {
 
               <CardContent className="p-3">
                 <div className="space-y-2">
-                  <Badge variant="secondary" className="text-xs font-black">
+                  <Badge variant="neutral" className="text-xs font-black">
                     {nft.collection}
                   </Badge>
 
@@ -175,28 +175,28 @@ export default function Home() {
       <nav className="fixed bottom-0 left-0 right-0 border-t-4 border-black bg-white">
         <div className="grid grid-cols-4 gap-1">
           <Button
-            variant="ghost"
+            variant="noShadow"
             className="h-16 flex-col font-black text-xs uppercase"
           >
             <div className="w-5 h-5 bg-primary mb-1"></div>
             HOME
           </Button>
           <Button
-            variant="ghost"
+            variant="noShadow"
             className="h-16 flex-col font-black text-xs uppercase"
           >
             <div className="w-5 h-5 bg-black mb-1"></div>
             BROWSE
           </Button>
           <Button
-            variant="ghost"
+            variant="noShadow"
             className="h-16 flex-col font-black text-xs uppercase"
           >
             <div className="w-5 h-5 bg-black mb-1"></div>
             LIST
           </Button>
           <Button
-            variant="ghost"
+            variant="noShadow"
             className="h-16 flex-col font-black text-xs uppercase"
           >
             <div className="w-5 h-5 bg-black mb-1"></div>
