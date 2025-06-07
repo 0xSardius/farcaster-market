@@ -1,17 +1,10 @@
 "use client";
 
-import {
-  useContract,
-  useValidDirectListings,
-  useOwnedNFTs,
-} from "@thirdweb-dev/react";
-import { useAddress } from "@thirdweb-dev/react";
+import { useContract, useValidDirectListings } from "@thirdweb-dev/react";
 
 const MARKETPLACE_ADDRESS = process.env.NEXT_PUBLIC_MARKETPLACE_ADDRESS || "";
 
 export function useMarketplace() {
-  const address = useAddress();
-
   // Connect to marketplace contract
   const { contract: marketplace } = useContract(
     MARKETPLACE_ADDRESS,

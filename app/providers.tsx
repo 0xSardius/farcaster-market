@@ -3,7 +3,7 @@
 import { MiniKitProvider } from "@coinbase/onchainkit/minikit";
 import { ThirdwebProvider } from "@thirdweb-dev/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { base } from "wagmi/chains";
+import { Base } from "@thirdweb-dev/chains";
 import { useState } from "react";
 
 export function Providers({ children }: { children: React.ReactNode }) {
@@ -12,13 +12,13 @@ export function Providers({ children }: { children: React.ReactNode }) {
   return (
     <QueryClientProvider client={queryClient}>
       <ThirdwebProvider
-        activeChain={base}
+        activeChain={Base}
         clientId={process.env.NEXT_PUBLIC_THIRDWEB_CLIENT_ID}
-        supportedChains={[base]}
+        supportedChains={[Base]}
       >
         <MiniKitProvider
           apiKey={process.env.NEXT_PUBLIC_ONCHAINKIT_API_KEY}
-          chain={base}
+          chain={Base}
           config={{
             appearance: {
               name: "Farcaster Market",

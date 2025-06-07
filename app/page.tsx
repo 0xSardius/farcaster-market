@@ -3,10 +3,10 @@
 import { useEffect } from "react";
 import { useMiniKit } from "@coinbase/onchainkit/minikit";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Search, Heart, Share2 } from "lucide-react";
+import { Search } from "lucide-react";
+import NFTGrid from "@/components/nft/NFTGrid";
 
 export default function Home() {
   const { setFrameReady, isFrameReady } = useMiniKit();
@@ -16,38 +16,6 @@ export default function Home() {
       setFrameReady();
     }
   }, [isFrameReady, setFrameReady]);
-
-  // Mock NFT data for demo
-  const mockNFTs = [
-    {
-      id: "1",
-      name: "Cool Farcaster NFT",
-      image: "https://picsum.photos/300/300?random=1",
-      price: "0.05",
-      collection: "FC AVATARS",
-    },
-    {
-      id: "2",
-      name: "Base Builder Badge",
-      image: "https://picsum.photos/300/300?random=2",
-      price: "0.1",
-      collection: "BASE BADGES",
-    },
-    {
-      id: "3",
-      name: "Purple Punk #420",
-      image: "https://picsum.photos/300/300?random=3",
-      price: "0.25",
-      collection: "PURPLE PUNKS",
-    },
-    {
-      id: "4",
-      name: "Onchain Summer Vibes",
-      image: "https://picsum.photos/300/300?random=4",
-      price: "0.08",
-      collection: "SUMMER DROPS",
-    },
-  ];
 
   return (
     <div className="min-h-screen bg-white">
@@ -102,19 +70,19 @@ export default function Home() {
             TRENDING
           </Badge>
           <Badge
-            variant="neutral"
+            variant="secondary"
             className="font-black uppercase whitespace-nowrap"
           >
             ART
           </Badge>
           <Badge
-            variant="neutral"
+            variant="secondary"
             className="font-black uppercase whitespace-nowrap"
           >
             PFPS
           </Badge>
           <Badge
-            variant="neutral"
+            variant="secondary"
             className="font-black uppercase whitespace-nowrap"
           >
             GAMING
@@ -122,81 +90,38 @@ export default function Home() {
         </div>
       </section>
 
-      {/* NFT Grid */}
+      {/* Live NFT Grid */}
       <section className="p-4">
-        <h3 className="text-xl font-black uppercase mb-4">FEATURED NFTS</h3>
-        <div className="grid grid-cols-2 gap-4">
-          {mockNFTs.map((nft) => (
-            <Card key={nft.id} className="overflow-hidden">
-              <div className="relative aspect-square">
-                <img
-                  src={nft.image}
-                  alt={nft.name}
-                  className="w-full h-full object-cover"
-                />
-
-                {/* Action Buttons */}
-                <div className="absolute top-2 right-2 flex space-x-1">
-                  <Button size="sm" variant="neutral" className="w-8 h-8 p-0">
-                    <Heart className="w-4 h-4" />
-                  </Button>
-                  <Button size="sm" variant="neutral" className="w-8 h-8 p-0">
-                    <Share2 className="w-4 h-4" />
-                  </Button>
-                </div>
-              </div>
-
-              <CardContent className="p-3">
-                <div className="space-y-2">
-                  <Badge variant="neutral" className="text-xs font-black">
-                    {nft.collection}
-                  </Badge>
-
-                  <h4 className="font-bold text-sm line-clamp-2">{nft.name}</h4>
-
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-xs font-black uppercase">PRICE</p>
-                      <p className="font-black text-primary">{nft.price} ETH</p>
-                    </div>
-
-                    <Button size="sm" className="font-black text-xs">
-                      BUY
-                    </Button>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
+        <h3 className="text-xl font-black uppercase mb-4">LIVE MARKETPLACE</h3>
+        <NFTGrid />
       </section>
 
       {/* Bottom Navigation */}
       <nav className="fixed bottom-0 left-0 right-0 border-t-4 border-black bg-white">
         <div className="grid grid-cols-4 gap-1">
           <Button
-            variant="noShadow"
+            variant="ghost"
             className="h-16 flex-col font-black text-xs uppercase"
           >
             <div className="w-5 h-5 bg-primary mb-1"></div>
             HOME
           </Button>
           <Button
-            variant="noShadow"
+            variant="ghost"
             className="h-16 flex-col font-black text-xs uppercase"
           >
             <div className="w-5 h-5 bg-black mb-1"></div>
             BROWSE
           </Button>
           <Button
-            variant="noShadow"
+            variant="ghost"
             className="h-16 flex-col font-black text-xs uppercase"
           >
             <div className="w-5 h-5 bg-black mb-1"></div>
             LIST
           </Button>
           <Button
-            variant="noShadow"
+            variant="ghost"
             className="h-16 flex-col font-black text-xs uppercase"
           >
             <div className="w-5 h-5 bg-black mb-1"></div>
@@ -205,7 +130,7 @@ export default function Home() {
         </div>
       </nav>
 
-      {/* Bottom padding to account for fixed nav */}
+      {/* Bottom padding */}
       <div className="h-16"></div>
     </div>
   );
