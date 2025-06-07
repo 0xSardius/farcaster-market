@@ -2,14 +2,20 @@
 
 import { useEffect } from "react";
 import { useMiniKit } from "@coinbase/onchainkit/minikit";
+import { useAccount } from "wagmi";
+import { useUser } from "@/context/UserContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Search } from "lucide-react";
 import NFTGrid from "@/components/nft/NFTGrid";
+import { useMarketplace } from "@/hooks/useMarketplace";
 
 export default function Home() {
   const { setFrameReady, isFrameReady } = useMiniKit();
+  const { isConnected } = useAccount();
+  const { dbUser, isLoading } = useUser();
+  const { listings, listingsLoading } = useMarketplace();
 
   useEffect(() => {
     if (!isFrameReady) {
@@ -32,10 +38,47 @@ export default function Home() {
             </div>
           </div>
 
-          <Button size="sm" className="font-black uppercase">
-            CONNECT
-          </Button>
+          <div className="flex items-center space-x-2">
+            {isLoading ? (
+              <div className="w-20 h-8 bg-muted animate-pulse border-2 border-black"></div>
+            ) : dbUser ? (
+              <div className="flex items-center space-x-2">
+                {dbUser.pfpUrl && (
+                  <img
+                    src={dbUser.pfpUrl}
+                    alt={dbUser.username}
+                    className="w-8 h-8 rounded-full border-2 border-black"
+                  />
+                )}
+                <div className="hidden sm:block">
+                  <div className="text-sm font-black uppercase">
+                    {dbUser.displayName}
+                  </div>
+                  <div className="text-xs text-gray-600">
+                    @{dbUser.username}
+                  </div>
+                </div>
+                {isConnected && (
+                  <div className="text-xs text-green-600 font-black">✓</div>
+                )}
+              </div>
+            ) : (
+              <div className="text-sm font-black uppercase text-gray-500">
+                CONNECT
+              </div>
+            )}
+          </div>
         </div>
+
+        {/* Welcome Message */}
+        {dbUser && (
+          <div className="px-4 pb-2">
+            <p className="text-sm font-bold">
+              👋 Welcome back,{" "}
+              {dbUser.displayName || dbUser.username || `User #${dbUser.fid}`}!
+            </p>
+          </div>
+        )}
 
         {/* Search Bar */}
         <div className="p-4 pt-0">
@@ -56,7 +99,9 @@ export default function Home() {
           <p className="text-lg font-black uppercase">
             WITHOUT LEAVING FARCASTER
           </p>
-          <Button className="font-black uppercase">START TRADING</Button>
+          <Button className="font-black uppercase">
+            {dbUser ? "START TRADING" : "CONNECT TO TRADE"}
+          </Button>
         </div>
       </section>
 
@@ -92,7 +137,16 @@ export default function Home() {
 
       {/* Live NFT Grid */}
       <section className="p-4">
-        <h3 className="text-xl font-black uppercase mb-4">LIVE MARKETPLACE</h3>
+        <div className="flex justify-between items-center mb-4">
+          <h3 className="text-xl font-black uppercase">LIVE MARKETPLACE</h3>
+          <div className="text-sm font-black uppercase text-gray-600">
+            {listingsLoading ? (
+              <div className="w-16 h-4 bg-muted animate-pulse"></div>
+            ) : (
+              `${listings.length} NFTS`
+            )}
+          </div>
+        </div>
         <NFTGrid />
       </section>
 

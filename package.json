@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@coinbase/onchainkit": "latest",
+    "@farcaster/auth-kit": "^0.8.1",
     "@farcaster/frame-sdk": "^0.0.35",
     "@radix-ui/react-slot": "^1.2.3",
     "@tanstack/react-query": "^5.80.6",

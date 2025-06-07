@@ -4,6 +4,7 @@ import { MiniKitProvider } from "@coinbase/onchainkit/minikit";
 import { ThirdwebProvider } from "@thirdweb-dev/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Base } from "@thirdweb-dev/chains";
+import { UserProvider } from "@/context/UserContext";
 import { useState } from "react";
 
 export function Providers({ children }: { children: React.ReactNode }) {
@@ -28,7 +29,9 @@ export function Providers({ children }: { children: React.ReactNode }) {
             },
           }}
         >
-          <div className="min-h-screen bg-white">{children}</div>
+          <UserProvider>
+            <div className="min-h-screen bg-white">{children}</div>
+          </UserProvider>
         </MiniKitProvider>
       </ThirdwebProvider>
     </QueryClientProvider>

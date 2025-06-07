@@ -2,7 +2,9 @@
 
 import { useContract, useValidDirectListings } from "@thirdweb-dev/react";
 
-const MARKETPLACE_ADDRESS = process.env.NEXT_PUBLIC_MARKETPLACE_ADDRESS || "";
+const MARKETPLACE_ADDRESS =
+  process.env.NEXT_PUBLIC_MARKETPLACE_ADDRESS ||
+  "0x1170fC1e672C825886C4D4692F017a9AF0a90aEc";
 
 export function useMarketplace() {
   // Connect to marketplace contract
