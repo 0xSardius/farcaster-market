@@ -1,45 +1,29 @@
 "use client";
 
-import { useContract, useOwnedNFTs } from "@thirdweb-dev/react";
+import { useState, useEffect } from "react";
 import { useAccount } from "wagmi";
+import { sampleUserNFTs } from "@/lib/sampleNFTs";
 
 export function useUserNFTs() {
-  const { address } = useAccount();
+  const { address, isConnected } = useAccount();
+  const [isLoading, setIsLoading] = useState(true);
 
-  // You can add specific NFT contracts here, or use a generic approach
-  // For now, we'll focus on a few popular Base NFT contracts
-  const POPULAR_CONTRACTS = [
-    // Add popular Base NFT contract addresses here
-    // Example: "0x..."
-  ];
+  useEffect(() => {
+    // Simulate loading
+    const timer = setTimeout(() => {
+      setIsLoading(false);
+    }, 1000);
 
-  // For the contest, we can use this to fetch from any contract
-  // In production, you'd want to be more specific
-  const {
-    data: ownedNFTs,
-    isLoading,
-    error,
-  } = useOwnedNFTs(
-    // Pass the contract if you have a specific one, or null for all
-    null, // This will fetch from all contracts (might be slow)
-    address,
-  );
+    return () => clearTimeout(timer);
+  }, [address]);
 
-  const formattedNFTs =
-    ownedNFTs?.map((nft) => ({
-      id: nft.metadata.id,
-      name: nft.metadata.name || `Token #${nft.metadata.id}`,
-      description: nft.metadata.description || "",
-      image: nft.metadata.image || nft.metadata.animation_url || "",
-      contractAddress: nft.owner,
-      tokenId: nft.metadata.id,
-      collection: nft.metadata.properties?.collection || "Unknown Collection",
-    })) || [];
+  // For demo purposes, return sample NFTs when connected
+  const ownedNFTs = isConnected ? sampleUserNFTs : [];
 
   return {
-    ownedNFTs: formattedNFTs,
+    ownedNFTs,
     isLoading,
-    error,
-    hasNFTs: formattedNFTs.length > 0,
+    error: null,
+    hasNFTs: ownedNFTs.length > 0,
   };
 }

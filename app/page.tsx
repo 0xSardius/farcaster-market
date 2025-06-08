@@ -7,9 +7,10 @@ import { useUser } from "@/context/UserContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Search } from "lucide-react";
+import { Search, Home as HomeIcon, Grid3X3, Plus, User } from "lucide-react";
 import NFTGrid from "@/components/nft/NFTGrid";
 import { useMarketplace } from "@/hooks/useMarketplace";
+import Link from "next/link";
 
 export default function Home() {
   const { setFrameReady, isFrameReady } = useMiniKit();
@@ -154,32 +155,44 @@ export default function Home() {
       <nav className="fixed bottom-0 left-0 right-0 border-t-4 border-black bg-white">
         <div className="grid grid-cols-4 gap-1">
           <Button
-            variant="ghost"
+            variant="noShadow"
             className="h-16 flex-col font-black text-xs uppercase"
+            asChild
           >
-            <div className="w-5 h-5 bg-primary mb-1"></div>
-            HOME
+            <Link href="/">
+              <HomeIcon className="w-5 h-5 mb-1" />
+              HOME
+            </Link>
           </Button>
           <Button
-            variant="ghost"
+            variant="noShadow"
             className="h-16 flex-col font-black text-xs uppercase"
+            asChild
           >
-            <div className="w-5 h-5 bg-black mb-1"></div>
-            BROWSE
+            <Link href="/">
+              <Grid3X3 className="w-5 h-5 mb-1" />
+              BROWSE
+            </Link>
           </Button>
           <Button
-            variant="ghost"
+            variant="noShadow"
             className="h-16 flex-col font-black text-xs uppercase"
+            asChild
           >
-            <div className="w-5 h-5 bg-black mb-1"></div>
-            LIST
+            <Link href="/list">
+              <Plus className="w-5 h-5 mb-1" />
+              LIST
+            </Link>
           </Button>
           <Button
-            variant="ghost"
+            variant="noShadow"
             className="h-16 flex-col font-black text-xs uppercase"
+            asChild
           >
-            <div className="w-5 h-5 bg-black mb-1"></div>
-            PROFILE
+            <Link href="/profile">
+              <User className="w-5 h-5 mb-1" />
+              PROFILE
+            </Link>
           </Button>
         </div>
       </nav>
