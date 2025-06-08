@@ -1,6 +1,20 @@
 // NFT API service for fetching user's owned NFTs
 // This can integrate with various providers like Alchemy, Moralis, OpenSea, etc.
 
+interface AlchemyNFT {
+  contract: {
+    address: string;
+    name?: string;
+    openSea?: { collectionName?: string };
+  };
+  id: { tokenId: string };
+  title?: string;
+  description?: string;
+  metadata?: { name?: string; description?: string; image?: string };
+  media?: Array<{ gateway?: string }>;
+  image?: { originalUrl?: string };
+}
+
 export interface NFTMetadata {
   id: string;
   name: string;
@@ -31,34 +45,20 @@ export class NFTApiService {
     walletAddress: string,
     chain: string = "base",
   ): Promise<NFTApiResponse> {
-    // For development/demo purposes, return empty for now
-    // In production, implement actual API calls:
-
     try {
-      // Example structure for real implementation:
+      console.log(`🔍 Fetching real NFTs for ${walletAddress} on ${chain}...`);
 
-      // Method 1: Alchemy NFT API
-      // const alchemyNFTs = await this.fetchFromAlchemy(walletAddress, chain);
+      // Fetch from Alchemy API
+      const alchemyNFTs = await this.fetchFromAlchemy(walletAddress);
 
-      // Method 2: Moralis NFT API
-      // const moralisNFTs = await this.fetchFromMoralis(walletAddress, chain);
+      console.log(`✅ Found ${alchemyNFTs.length} NFTs from Alchemy API`);
 
-      // Method 3: OpenSea API
-      // const openSeaNFTs = await this.fetchFromOpenSea(walletAddress, chain);
-
-      // Method 4: Chain-specific indexers
-      // const chainNFTs = await this.fetchFromChainIndexer(walletAddress, chain);
-
-      console.log(`Fetching NFTs for ${walletAddress} on ${chain}...`);
-
-      // For now, return empty array
-      // Real implementation would combine and deduplicate results from multiple sources
       return {
-        nfts: [],
-        hasMore: false,
+        nfts: alchemyNFTs,
+        hasMore: false, // For now, we'll get all NFTs in one call
       };
     } catch (error) {
-      console.error("Failed to fetch NFTs:", error);
+      console.error("❌ Failed to fetch NFTs from Alchemy:", error);
       return {
         nfts: [],
         hasMore: false,
@@ -67,40 +67,75 @@ export class NFTApiService {
   }
 
   /**
-   * Example implementation for Alchemy NFT API
-   * Uncomment and configure when ready to use
+   * Alchemy NFT API implementation for fetching user's owned NFTs
    */
-  /*
   private static async fetchFromAlchemy(
-    walletAddress: string, 
-    chain: string
+    walletAddress: string,
   ): Promise<NFTMetadata[]> {
     const alchemyApiKey = process.env.NEXT_PUBLIC_ALCHEMY_API_KEY;
-    if (!alchemyApiKey) return [];
+    const alchemyUrl = process.env.NEXT_PUBLIC_ALCHEMY_URL;
 
-    const baseUrl = chain === 'base' 
-      ? `https://base-mainnet.g.alchemy.com/nft/v3/${alchemyApiKey}`
-      : `https://eth-mainnet.g.alchemy.com/nft/v3/${alchemyApiKey}`;
+    if (!alchemyApiKey || !alchemyUrl) {
+      console.warn("⚠️ Alchemy configuration not found", {
+        hasApiKey: !!alchemyApiKey,
+        hasUrl: !!alchemyUrl,
+      });
+      return [];
+    }
 
-    const response = await fetch(
-      `${baseUrl}/getNFTsForOwner?owner=${walletAddress}&withMetadata=true`
-    );
+    try {
+      // Use the Alchemy URL from environment variables
+      const baseUrl = alchemyUrl.replace("/v2/", "/nft/v3/");
+      const url = `${baseUrl}/getNFTsForOwner?owner=${walletAddress}&withMetadata=true&pageSize=100`;
 
-    if (!response.ok) throw new Error('Alchemy API failed');
+      console.log(
+        `🌐 Calling Alchemy API: ${url.replace(alchemyApiKey, "xxx")}`,
+      );
 
-    const data = await response.json();
-    
-    return data.ownedNfts?.map((nft: any) => ({
-      id: `${nft.contract.address}-${nft.id.tokenId}`,
-      name: nft.title || `Token #${nft.id.tokenId}`,
-      description: nft.description || '',
-      image: nft.media?.[0]?.gateway || nft.metadata?.image || '',
-      contractAddress: nft.contract.address,
-      tokenId: nft.id.tokenId,
-      collection: nft.contract.name || 'Unknown Collection',
-    })) || [];
+      const response = await fetch(url);
+
+      if (!response.ok) {
+        throw new Error(
+          `Alchemy API error: ${response.status} ${response.statusText}`,
+        );
+      }
+
+      const data = await response.json();
+
+      console.log(`📊 Raw Alchemy response:`, {
+        totalCount: data.totalCount,
+        ownedNftsCount: data.ownedNfts?.length || 0,
+      });
+
+      if (!data.ownedNfts || data.ownedNfts.length === 0) {
+        console.log("📦 No NFTs found for this wallet");
+        return [];
+      }
+
+      const nfts = data.ownedNfts.map((nft: AlchemyNFT) => ({
+        id: `${nft.contract.address}-${nft.id.tokenId}`,
+        name: nft.title || nft.metadata?.name || `Token #${nft.id.tokenId}`,
+        description: nft.description || nft.metadata?.description || "",
+        image:
+          nft.media?.[0]?.gateway ||
+          nft.metadata?.image ||
+          nft.image?.originalUrl ||
+          "",
+        contractAddress: nft.contract.address,
+        tokenId: nft.id.tokenId,
+        collection:
+          nft.contract.name ||
+          nft.contract.openSea?.collectionName ||
+          "Unknown Collection",
+      }));
+
+      console.log(`✨ Processed ${nfts.length} NFTs from Alchemy`);
+      return nfts;
+    } catch (error) {
+      console.error("💥 Alchemy API error:", error);
+      return [];
+    }
   }
-  */
 
   /**
    * Example implementation for Moralis NFT API
@@ -145,16 +180,17 @@ export class NFTApiService {
    */
   static validateNFTMetadata(nft: unknown): NFTMetadata | null {
     try {
-      if (!nft.contractAddress || !nft.tokenId) return null;
+      const nftData = nft as Partial<NFTMetadata>;
+      if (!nftData?.contractAddress || !nftData?.tokenId) return null;
 
       return {
-        id: nft.id || `${nft.contractAddress}-${nft.tokenId}`,
-        name: nft.name || `Token #${nft.tokenId}`,
-        description: nft.description || "",
-        image: nft.image || "",
-        contractAddress: nft.contractAddress.toLowerCase(),
-        tokenId: nft.tokenId.toString(),
-        collection: nft.collection || "Unknown Collection",
+        id: nftData.id || `${nftData.contractAddress}-${nftData.tokenId}`,
+        name: nftData.name || `Token #${nftData.tokenId}`,
+        description: nftData.description || "",
+        image: nftData.image || "",
+        contractAddress: nftData.contractAddress.toLowerCase(),
+        tokenId: nftData.tokenId.toString(),
+        collection: nftData.collection || "Unknown Collection",
       };
     } catch (error) {
       console.warn("Invalid NFT metadata:", error);

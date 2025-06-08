@@ -6,7 +6,7 @@ import { NFTApiService, type NFTMetadata } from "@/lib/nftApi";
 import { sampleUserNFTs } from "@/lib/sampleNFTs";
 
 export function useUserNFTs() {
-  const { address, isConnected } = useAccount();
+  const { address } = useAccount();
   const [ownedNFTs, setOwnedNFTs] = useState<NFTMetadata[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
