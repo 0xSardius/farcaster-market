@@ -1,32 +1,35 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useAccount } from "wagmi";
+import { useUser } from "@/context/UserContext";
 import { NFTApiService, type NFTMetadata } from "@/lib/nftApi";
 import { sampleUserNFTs } from "@/lib/sampleNFTs";
 
 export function useUserNFTs() {
-  const { address } = useAccount();
+  const { walletAddress } = useUser();
   const [ownedNFTs, setOwnedNFTs] = useState<NFTMetadata[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchUserNFTs = async () => {
-      if (!address) {
+      if (!walletAddress) {
         setOwnedNFTs([]);
         return;
       }
 
-      // Auto-fetch NFTs as soon as we have an address, regardless of isConnected status
-      // This ensures data loads immediately when wallet auto-connects
+      // Auto-fetch NFTs as soon as we have a wallet address from MiniKit
+      // This ensures data loads immediately when wallet connects through Frame SDK
 
       setIsLoading(true);
       setError(null);
 
       try {
         // Fetch real NFTs using the API service
-        const response = await NFTApiService.fetchUserNFTs(address, "base");
+        const response = await NFTApiService.fetchUserNFTs(
+          walletAddress,
+          "base",
+        );
 
         if (response.nfts.length > 0) {
           setOwnedNFTs(response.nfts);
@@ -67,7 +70,7 @@ export function useUserNFTs() {
     };
 
     fetchUserNFTs();
-  }, [address]); // Only depend on address, not isConnected
+  }, [walletAddress]); // Only depend on walletAddress from MiniKit
 
   return {
     ownedNFTs,
@@ -76,7 +79,7 @@ export function useUserNFTs() {
     hasNFTs: ownedNFTs.length > 0,
     refetch: () => {
       // Trigger a refetch
-      if (address) {
+      if (walletAddress) {
         setIsLoading(true);
         // The useEffect will handle the actual fetching
       }

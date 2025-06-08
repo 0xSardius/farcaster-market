@@ -7,20 +7,21 @@ import {
   useEffect,
   ReactNode,
 } from "react";
+import { useMiniKit } from "@coinbase/onchainkit/minikit";
 import { sdk } from "@farcaster/frame-sdk";
 import {
   createOrUpdateUser,
   getUserByFid,
-  updateUserWallet,
   type User as DBUser,
 } from "@/lib/supabase";
-import { useAccount } from "wagmi";
 
 interface UserContextType {
   dbUser: DBUser | null;
   setDbUser: (user: DBUser | null) => void;
   isLoading: boolean;
   refreshUser: () => Promise<void>;
+  walletAddress: string | null;
+  isFrameReady: boolean;
 }
 
 const UserContext = createContext<UserContextType | undefined>(undefined);
@@ -28,91 +29,141 @@ const UserContext = createContext<UserContextType | undefined>(undefined);
 export function UserProvider({ children }: { children: ReactNode }) {
   const [dbUser, setDbUser] = useState<DBUser | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const { address } = useAccount();
+  const [walletAddress, setWalletAddress] = useState<string | null>(null);
 
-  // Remove auto-connect wallet logic to prevent flickering
-  // Users will connect manually via the WalletConnect component
+  const { setFrameReady, isFrameReady, context } = useMiniKit();
 
+  // Initialize the frame and get wallet connection
+  useEffect(() => {
+    const initializeFrame = async () => {
+      try {
+        // Call ready to hide splash screen
+        if (!isFrameReady) {
+          await setFrameReady();
+        }
+
+        // Get the Frame SDK context for user data and wallet
+        const frameContext = await sdk.context;
+
+        if (frameContext?.user) {
+          console.log("🎯 Frame context loaded:", frameContext.user);
+        }
+
+        // Check if wallet is available through Frame SDK
+        if (sdk.wallet && sdk.wallet.ethProvider) {
+          try {
+            // Request wallet accounts (this should be silent in Farcaster)
+            const accounts = (await sdk.wallet.ethProvider.request({
+              method: "eth_accounts",
+            })) as string[];
+
+            if (accounts && accounts.length > 0) {
+              const address = accounts[0];
+              setWalletAddress(address);
+              console.log("🏦 Wallet connected:", address);
+            } else {
+              // Request connection if no accounts
+              const requestedAccounts = (await sdk.wallet.ethProvider.request({
+                method: "eth_requestAccounts",
+              })) as string[];
+
+              if (requestedAccounts && requestedAccounts.length > 0) {
+                const address = requestedAccounts[0];
+                setWalletAddress(address);
+                console.log("🏦 Wallet connected after request:", address);
+              }
+            }
+          } catch (walletError) {
+            console.log(
+              "💼 Wallet not available or connection failed:",
+              walletError,
+            );
+          }
+        }
+      } catch (error) {
+        console.log(
+          "🚫 Frame initialization failed (expected outside Farcaster):",
+          error,
+        );
+      }
+    };
+
+    initializeFrame();
+  }, [setFrameReady, isFrameReady]);
+
+  // Load user data from MiniKit context and database
   const refreshUser = async () => {
     try {
       setIsLoading(true);
-      // Get user context from Farcaster Frame SDK
-      const context = await sdk.context;
+
+      // Try to get user from MiniKit context first
+      let userData = null;
 
       if (context?.user) {
-        // First, check if user exists in database
-        const existingUser = await getUserByFid(context.user.fid);
+        userData = context.user;
+        console.log("📱 Using MiniKit context user:", userData);
+      } else {
+        // Fallback to Frame SDK context
+        try {
+          const frameContext = await sdk.context;
+          if (frameContext?.user) {
+            userData = frameContext.user;
+            console.log("🖼️ Using Frame SDK context user:", userData);
+          }
+        } catch (error) {
+          console.log("Not in Frame context:", error);
+        }
+      }
+
+      if (userData) {
+        // Check if user exists in database
+        const existingUser = await getUserByFid(userData.fid);
 
         if (existingUser) {
-          // User exists - update with fresh Farcaster data but preserve DB fields
-          const userData = await createOrUpdateUser({
-            fid: context.user.fid,
-            username: context.user.username || existingUser.username,
-            display_name: context.user.displayName || existingUser.display_name,
-            pfp_url: context.user.pfpUrl || existingUser.pfp_url,
+          // Update existing user with fresh data
+          const updatedUser = await createOrUpdateUser({
+            fid: userData.fid,
+            username: userData.username || existingUser.username,
+            display_name: userData.displayName || existingUser.display_name,
+            pfp_url: userData.pfpUrl || existingUser.pfp_url,
             bio: existingUser.bio, // Preserve existing bio
-            wallet_address: address || existingUser.wallet_address, // Preserve existing wallet if no new one
+            wallet_address: walletAddress || existingUser.wallet_address,
           });
-          setDbUser(userData);
+          setDbUser(updatedUser);
         } else {
-          // New user - create with Farcaster data
-          const userData = await createOrUpdateUser({
-            fid: context.user.fid,
-            username: context.user.username || undefined,
-            display_name: context.user.displayName || undefined,
-            pfp_url: context.user.pfpUrl || undefined,
+          // Create new user
+          const newUser = await createOrUpdateUser({
+            fid: userData.fid,
+            username: userData.username || undefined,
+            display_name: userData.displayName || undefined,
+            pfp_url: userData.pfpUrl || undefined,
             bio: undefined,
-            wallet_address: address || undefined,
+            wallet_address: walletAddress || undefined,
           });
-          setDbUser(userData);
-
-          // TODO: Could trigger welcome flow for new users here
-          console.log("✨ Welcome new user!", userData.display_name);
+          setDbUser(newUser);
+          console.log("✨ Welcome new user!", newUser.display_name);
         }
       }
     } catch (error) {
       console.log("Error loading user data:", error);
-      // Fallback: try to load from Farcaster context only
-      try {
-        const context = await sdk.context;
-        if (context?.user) {
-          // Create a minimal user object
-          const fallbackUser: Partial<DBUser> = {
-            id: "", // Will be set when saved to DB
-            fid: context.user.fid,
-            username: context.user.username || undefined,
-            display_name: context.user.displayName || undefined,
-            pfp_url: context.user.pfpUrl || undefined,
-            created_at: new Date().toISOString(),
-            updated_at: new Date().toISOString(),
-            last_seen: new Date().toISOString(),
-          };
-          setDbUser(fallbackUser as DBUser);
-        }
-      } catch (fallbackError) {
-        console.log("Not in Farcaster context:", fallbackError);
-      }
     } finally {
       setIsLoading(false);
     }
   };
 
-  // Update wallet address when connected
+  // Refresh user data when context or wallet changes
   useEffect(() => {
-    if (dbUser && address && dbUser.wallet_address !== address) {
-      console.log(
-        "💰 Updating wallet address for user:",
-        dbUser.username,
-        address,
-      );
-      updateUserWallet(dbUser.fid, address).catch(console.error);
-      setDbUser({ ...dbUser, wallet_address: address });
+    if (context || walletAddress) {
+      refreshUser();
     }
-  }, [address, dbUser]);
+  }, [context, walletAddress]);
 
   // Initial user data load
   useEffect(() => {
-    refreshUser();
+    if (!context && !walletAddress) {
+      // Try to load user data even without context (for development)
+      refreshUser();
+    }
   }, []);
 
   return (
@@ -122,6 +173,8 @@ export function UserProvider({ children }: { children: ReactNode }) {
         setDbUser,
         isLoading,
         refreshUser,
+        walletAddress,
+        isFrameReady,
       }}
     >
       {children}

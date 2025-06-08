@@ -1,20 +1,17 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useAccount } from "wagmi";
 import { useUser } from "@/context/UserContext";
 import { getUserActivity, getUserFavorites } from "@/lib/supabase";
 import type { Activity, UserFavorite } from "@/lib/supabase";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
-import { WalletConnect } from "@/components/WalletConnect";
 import { ArrowLeft, Heart, ShoppingBag, Share2, Eye } from "lucide-react";
 import Link from "next/link";
 
 export default function ProfilePage() {
-  const { isConnected } = useAccount();
-  const { dbUser } = useUser();
+  const { dbUser, walletAddress, isFrameReady } = useUser();
   const [activity, setActivity] = useState<Activity[]>([]);
   const [favorites, setFavorites] = useState<UserFavorite[]>([]);
   const [activeTab, setActiveTab] = useState<"activity" | "favorites">(
@@ -76,7 +73,7 @@ export default function ProfilePage() {
     }
   };
 
-  if (!isConnected || !dbUser) {
+  if (!walletAddress || !dbUser || !isFrameReady) {
     return (
       <div className="min-h-screen bg-white">
         <header className="border-b-4 border-black bg-white p-4">
@@ -91,11 +88,17 @@ export default function ProfilePage() {
         </header>
 
         <div className="p-4 text-center py-12">
-          <p className="font-black uppercase mb-4">NOT CONNECTED</p>
-          <p className="text-sm mb-4">
-            Connect your wallet to view your profile
+          <p className="font-black uppercase mb-4">
+            {!isFrameReady ? "LOADING..." : "NOT CONNECTED"}
           </p>
-          <WalletConnect />
+          <p className="text-sm mb-4">
+            {!isFrameReady
+              ? "Initializing app..."
+              : "Open this app in Farcaster to view your profile"}
+          </p>
+          {!isFrameReady && (
+            <div className="w-6 h-6 bg-primary animate-spin rounded-full mx-auto"></div>
+          )}
         </div>
       </div>
     );
@@ -137,7 +140,7 @@ export default function ProfilePage() {
               <div className="text-xs">
                 <span className="font-black">FID:</span> {dbUser.fid}
               </div>
-              {isConnected && (
+              {walletAddress && (
                 <div className="flex items-center space-x-1">
                   <div className="w-2 h-2 bg-green-500 rounded-full"></div>
                   <span className="text-xs font-black">CONNECTED</span>

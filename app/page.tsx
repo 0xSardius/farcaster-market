@@ -1,8 +1,5 @@
 "use client";
 
-import { useEffect } from "react";
-import { useMiniKit } from "@coinbase/onchainkit/minikit";
-import { useAccount } from "wagmi";
 import { useUser } from "@/context/UserContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -13,16 +10,10 @@ import { useMarketplace } from "@/hooks/useMarketplace";
 import Link from "next/link";
 
 export default function Home() {
-  const { setFrameReady, isFrameReady } = useMiniKit();
-  const { isConnected } = useAccount();
-  const { dbUser, isLoading, isWalletConnecting } = useUser();
+  const { dbUser, isLoading, walletAddress, isFrameReady } = useUser();
   const { listings, listingsLoading } = useMarketplace();
 
-  useEffect(() => {
-    if (!isFrameReady) {
-      setFrameReady();
-    }
-  }, [isFrameReady, setFrameReady]);
+  // MiniKit initialization is handled in UserContext
 
   return (
     <div className="min-h-screen bg-white">

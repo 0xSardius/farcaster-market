@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { useAccount } from "wagmi";
 import { useUser } from "@/context/UserContext";
 import { useUserNFTs } from "@/hooks/useUserNFTs";
 import { useMarketplace } from "@/hooks/useMarketplace";
@@ -9,13 +8,11 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
-import { WalletConnect } from "@/components/WalletConnect";
 import { ArrowLeft, Plus, Loader2 } from "lucide-react";
 import Link from "next/link";
 
 export default function ListPage() {
-  const { isConnected } = useAccount();
-  const { dbUser } = useUser();
+  const { dbUser, walletAddress, isFrameReady } = useUser();
   const { ownedNFTs, isLoading: nftsLoading } = useUserNFTs();
   const { createListing } = useMarketplace();
   const [selectedNFT, setSelectedNFT] = useState<string | null>(null);
@@ -47,7 +44,7 @@ export default function ListPage() {
     }
   };
 
-  if (!isConnected) {
+  if (!walletAddress || !isFrameReady) {
     return (
       <div className="min-h-screen bg-white">
         {/* Header */}
@@ -63,9 +60,17 @@ export default function ListPage() {
         </header>
 
         <div className="p-4 text-center py-12">
-          <p className="font-black uppercase mb-4">WALLET NOT CONNECTED</p>
-          <p className="text-sm mb-4">Connect your wallet to list your NFTs</p>
-          <WalletConnect />
+          <p className="font-black uppercase mb-4">
+            {!isFrameReady ? "LOADING..." : "WALLET NOT CONNECTED"}
+          </p>
+          <p className="text-sm mb-4">
+            {!isFrameReady
+              ? "Initializing app..."
+              : "Open this app in Farcaster to connect your wallet"}
+          </p>
+          {!isFrameReady && (
+            <div className="w-6 h-6 bg-primary animate-spin rounded-full mx-auto"></div>
+          )}
         </div>
       </div>
     );
