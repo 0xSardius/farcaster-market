@@ -43,16 +43,16 @@ export default function Home() {
               <div className="w-20 h-8 bg-muted animate-pulse border-2 border-black"></div>
             ) : dbUser ? (
               <div className="flex items-center space-x-2">
-                {dbUser.pfpUrl && (
+                {dbUser.pfp_url && (
                   <img
-                    src={dbUser.pfpUrl}
+                    src={dbUser.pfp_url}
                     alt={dbUser.username}
                     className="w-8 h-8 rounded-full border-2 border-black"
                   />
                 )}
                 <div className="hidden sm:block">
                   <div className="text-sm font-black uppercase">
-                    {dbUser.displayName}
+                    {dbUser.display_name}
                   </div>
                   <div className="text-xs text-gray-600">
                     @{dbUser.username}
@@ -75,7 +75,7 @@ export default function Home() {
           <div className="px-4 pb-2">
             <p className="text-sm font-bold">
               👋 Welcome back,{" "}
-              {dbUser.displayName || dbUser.username || `User #${dbUser.fid}`}!
+              {dbUser.display_name || dbUser.username || `User #${dbUser.fid}`}!
             </p>
           </div>
         )}
@@ -115,19 +115,19 @@ export default function Home() {
             TRENDING
           </Badge>
           <Badge
-            variant="secondary"
+            variant="neutral"
             className="font-black uppercase whitespace-nowrap"
           >
             ART
           </Badge>
           <Badge
-            variant="secondary"
+            variant="neutral"
             className="font-black uppercase whitespace-nowrap"
           >
             PFPS
           </Badge>
           <Badge
-            variant="secondary"
+            variant="neutral"
             className="font-black uppercase whitespace-nowrap"
           >
             GAMING

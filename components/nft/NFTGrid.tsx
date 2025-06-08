@@ -25,7 +25,7 @@ export default function NFTGrid() {
         <p className="font-black uppercase text-destructive">
           FAILED TO LOAD NFTS
         </p>
-        <Button variant="secondary" onClick={() => window.location.reload()}>
+        <Button variant="neutral" onClick={() => window.location.reload()}>
           <RefreshCw className="w-4 h-4 mr-2" />
           RETRY
         </Button>
@@ -45,7 +45,7 @@ export default function NFTGrid() {
   return (
     <div className="grid grid-cols-2 gap-4">
       {listings.map((nft) => (
-        <NFTCard key={nft.id} nft={nft} />
+        <NFTCard key={nft.id} nft={{ ...nft, name: String(nft.name) }} />
       ))}
     </div>
   );
