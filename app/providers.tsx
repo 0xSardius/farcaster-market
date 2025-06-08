@@ -9,13 +9,13 @@ import { useState } from "react";
 import { WagmiProvider, createConfig, http } from "wagmi";
 import { coinbaseWallet } from "wagmi/connectors";
 
-// Configure wagmi for auto-connection
+// Configure wagmi with MiniKit-compatible settings
 const config = createConfig({
   chains: [Base],
   connectors: [
     coinbaseWallet({
       appName: "Farcaster Market",
-      preference: "smartWalletOnly", // Use Coinbase Smart Wallet
+      preference: "smartWalletOnly",
     }),
   ],
   transports: {

@@ -9,12 +9,13 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
+import { WalletConnect } from "@/components/WalletConnect";
 import { ArrowLeft, Plus, Loader2 } from "lucide-react";
 import Link from "next/link";
 
 export default function ListPage() {
   const { isConnected } = useAccount();
-  const { dbUser, isWalletConnecting } = useUser();
+  const { dbUser } = useUser();
   const { ownedNFTs, isLoading: nftsLoading } = useUserNFTs();
   const { createListing } = useMarketplace();
   const [selectedNFT, setSelectedNFT] = useState<string | null>(null);
@@ -62,19 +63,9 @@ export default function ListPage() {
         </header>
 
         <div className="p-4 text-center py-12">
-          <p className="font-black uppercase mb-4">
-            {isWalletConnecting
-              ? "CONNECTING WALLET..."
-              : "WALLET NOT CONNECTED"}
-          </p>
-          <p className="text-sm mb-4">
-            {isWalletConnecting
-              ? "Please wait while we connect your wallet"
-              : "Your wallet will auto-connect when you open this in Farcaster"}
-          </p>
-          {isWalletConnecting && (
-            <div className="w-6 h-6 bg-primary animate-spin rounded-full mx-auto"></div>
-          )}
+          <p className="font-black uppercase mb-4">WALLET NOT CONNECTED</p>
+          <p className="text-sm mb-4">Connect your wallet to list your NFTs</p>
+          <WalletConnect />
         </div>
       </div>
     );

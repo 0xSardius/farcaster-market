@@ -8,12 +8,13 @@ import type { Activity, UserFavorite } from "@/lib/supabase";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
+import { WalletConnect } from "@/components/WalletConnect";
 import { ArrowLeft, Heart, ShoppingBag, Share2, Eye } from "lucide-react";
 import Link from "next/link";
 
 export default function ProfilePage() {
-  const { address, isConnected } = useAccount();
-  const { dbUser, isWalletConnecting } = useUser();
+  const { isConnected } = useAccount();
+  const { dbUser } = useUser();
   const [activity, setActivity] = useState<Activity[]>([]);
   const [favorites, setFavorites] = useState<UserFavorite[]>([]);
   const [activeTab, setActiveTab] = useState<"activity" | "favorites">(
@@ -94,7 +95,7 @@ export default function ProfilePage() {
           <p className="text-sm mb-4">
             Connect your wallet to view your profile
           </p>
-          <Button>CONNECT WALLET</Button>
+          <WalletConnect />
         </div>
       </div>
     );
