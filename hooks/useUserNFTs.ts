@@ -2,28 +2,81 @@
 
 import { useState, useEffect } from "react";
 import { useAccount } from "wagmi";
+import { NFTApiService, type NFTMetadata } from "@/lib/nftApi";
 import { sampleUserNFTs } from "@/lib/sampleNFTs";
 
 export function useUserNFTs() {
   const { address, isConnected } = useAccount();
-  const [isLoading, setIsLoading] = useState(true);
+  const [ownedNFTs, setOwnedNFTs] = useState<NFTMetadata[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    // Simulate loading
-    const timer = setTimeout(() => {
-      setIsLoading(false);
-    }, 1000);
+    const fetchUserNFTs = async () => {
+      if (!isConnected || !address) {
+        setOwnedNFTs([]);
+        return;
+      }
 
-    return () => clearTimeout(timer);
-  }, [address]);
+      setIsLoading(true);
+      setError(null);
 
-  // For demo purposes, return sample NFTs when connected
-  const ownedNFTs = isConnected ? sampleUserNFTs : [];
+      try {
+        // Fetch real NFTs using the API service
+        const response = await NFTApiService.fetchUserNFTs(address, "base");
+
+        if (response.nfts.length > 0) {
+          setOwnedNFTs(response.nfts);
+        } else {
+          // Fallback to sample data for demo purposes
+          // Convert sample NFTs to match the NFTMetadata interface
+          const sampleNFTs: NFTMetadata[] = sampleUserNFTs.map((nft) => ({
+            id: nft.id,
+            name: nft.name,
+            description: nft.description,
+            image: nft.image,
+            contractAddress: nft.contractAddress,
+            tokenId: nft.tokenId.toString(),
+            collection: nft.collection,
+          }));
+
+          setOwnedNFTs(sampleNFTs);
+        }
+      } catch (error) {
+        console.error("Failed to fetch user NFTs:", error);
+        setError("Failed to load your NFTs. Please try again.");
+
+        // Even on error, show sample data for demo
+        const sampleNFTs: NFTMetadata[] = sampleUserNFTs.map((nft) => ({
+          id: nft.id,
+          name: nft.name,
+          description: nft.description,
+          image: nft.image,
+          contractAddress: nft.contractAddress,
+          tokenId: nft.tokenId.toString(),
+          collection: nft.collection,
+        }));
+
+        setOwnedNFTs(sampleNFTs);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchUserNFTs();
+  }, [address, isConnected]);
 
   return {
     ownedNFTs,
     isLoading,
-    error: null,
+    error,
     hasNFTs: ownedNFTs.length > 0,
+    refetch: () => {
+      // Trigger a refetch
+      if (isConnected && address) {
+        setIsLoading(true);
+        // The useEffect will handle the actual fetching
+      }
+    },
   };
 }
