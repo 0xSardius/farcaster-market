@@ -25,13 +25,13 @@
     "next": "^14.2.15",
     "react": "^18",
     "react-dom": "^18",
-    "react-query": "^3.39.3",
     "tailwind-merge": "^3.3.0",
     "tailwindcss-animate": "^1.0.7",
     "viem": "^2.27.2",
     "wagmi": "^2.14.11"
   },
   "devDependencies": {
+    "@swc/core": "^1.7.26",
     "@types/node": "^20",
     "@types/react": "^18",
     "@types/react-dom": "^18",

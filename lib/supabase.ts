@@ -35,7 +35,7 @@ export interface Activity {
   from_address?: string;
   to_address?: string;
   cast_hash?: string;
-  metadata?: Record<string, any>; // Better typing than 'any'
+  metadata?: Record<string, unknown>;
   created_at: string;
 }
 
@@ -156,7 +156,7 @@ export const logActivity = async (
     fromAddress?: string;
     toAddress?: string;
     castHash?: string;
-    metadata?: Record<string, any>;
+    metadata?: Record<string, unknown>;
   },
 ) => {
   try {
