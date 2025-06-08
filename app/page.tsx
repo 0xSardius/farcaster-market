@@ -15,7 +15,7 @@ import Link from "next/link";
 export default function Home() {
   const { setFrameReady, isFrameReady } = useMiniKit();
   const { isConnected } = useAccount();
-  const { dbUser, isLoading } = useUser();
+  const { dbUser, isLoading, isWalletConnecting } = useUser();
   const { listings, listingsLoading } = useMarketplace();
 
   useEffect(() => {
@@ -40,8 +40,13 @@ export default function Home() {
           </div>
 
           <div className="flex items-center space-x-2">
-            {isLoading ? (
-              <div className="w-20 h-8 bg-muted animate-pulse border-2 border-black"></div>
+            {isLoading || isWalletConnecting ? (
+              <div className="flex items-center space-x-2">
+                <div className="w-6 h-6 bg-muted animate-pulse border-2 border-black rounded-full"></div>
+                <div className="text-xs font-black uppercase text-gray-500">
+                  {isWalletConnecting ? "CONNECTING..." : "LOADING..."}
+                </div>
+              </div>
             ) : dbUser ? (
               <div className="flex items-center space-x-2">
                 {dbUser.pfp_url && (
@@ -59,13 +64,19 @@ export default function Home() {
                     @{dbUser.username}
                   </div>
                 </div>
-                {isConnected && (
-                  <div className="text-xs text-green-600 font-black">✓</div>
+                {isConnected ? (
+                  <div className="text-xs text-green-600 font-black">
+                    ✓ WALLET
+                  </div>
+                ) : (
+                  <div className="text-xs text-orange-600 font-black">
+                    ○ WALLET
+                  </div>
                 )}
               </div>
             ) : (
               <div className="text-sm font-black uppercase text-gray-500">
-                CONNECT
+                INITIALIZING...
               </div>
             )}
           </div>
@@ -100,8 +111,15 @@ export default function Home() {
           <p className="text-lg font-black uppercase">
             WITHOUT LEAVING FARCASTER
           </p>
-          <Button className="font-black uppercase">
-            {dbUser ? "START TRADING" : "CONNECT TO TRADE"}
+          <Button
+            className="font-black uppercase"
+            disabled={isLoading || isWalletConnecting}
+          >
+            {isLoading || isWalletConnecting
+              ? "CONNECTING..."
+              : dbUser && isConnected
+                ? "START TRADING"
+                : "ALMOST READY..."}
           </Button>
         </div>
       </section>

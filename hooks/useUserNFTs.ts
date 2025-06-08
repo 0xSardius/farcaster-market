@@ -13,10 +13,13 @@ export function useUserNFTs() {
 
   useEffect(() => {
     const fetchUserNFTs = async () => {
-      if (!isConnected || !address) {
+      if (!address) {
         setOwnedNFTs([]);
         return;
       }
+
+      // Auto-fetch NFTs as soon as we have an address, regardless of isConnected status
+      // This ensures data loads immediately when wallet auto-connects
 
       setIsLoading(true);
       setError(null);
@@ -64,7 +67,7 @@ export function useUserNFTs() {
     };
 
     fetchUserNFTs();
-  }, [address, isConnected]);
+  }, [address]); // Only depend on address, not isConnected
 
   return {
     ownedNFTs,
@@ -73,7 +76,7 @@ export function useUserNFTs() {
     hasNFTs: ownedNFTs.length > 0,
     refetch: () => {
       // Trigger a refetch
-      if (isConnected && address) {
+      if (address) {
         setIsLoading(true);
         // The useEffect will handle the actual fetching
       }

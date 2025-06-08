@@ -13,7 +13,7 @@ import Link from "next/link";
 
 export default function ProfilePage() {
   const { address, isConnected } = useAccount();
-  const { dbUser } = useUser();
+  const { dbUser, isWalletConnecting } = useUser();
   const [activity, setActivity] = useState<Activity[]>([]);
   const [favorites, setFavorites] = useState<UserFavorite[]>([]);
   const [activeTab, setActiveTab] = useState<"activity" | "favorites">(

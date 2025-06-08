@@ -14,13 +14,14 @@ import {
   updateUserWallet,
   type User as DBUser,
 } from "@/lib/supabase";
-import { useAccount } from "wagmi";
+import { useAccount, useConnect } from "wagmi";
 
 interface UserContextType {
   dbUser: DBUser | null;
   setDbUser: (user: DBUser | null) => void;
   isLoading: boolean;
   refreshUser: () => Promise<void>;
+  isWalletConnecting: boolean;
 }
 
 const UserContext = createContext<UserContextType | undefined>(undefined);
@@ -28,7 +29,51 @@ const UserContext = createContext<UserContextType | undefined>(undefined);
 export function UserProvider({ children }: { children: ReactNode }) {
   const [dbUser, setDbUser] = useState<DBUser | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const { address } = useAccount();
+  const [isWalletConnecting, setIsWalletConnecting] = useState(false);
+  const { address, isConnected } = useAccount();
+  const { connect, connectors } = useConnect();
+
+  // Auto-connect wallet when component mounts
+  useEffect(() => {
+    const autoConnectWallet = async () => {
+      if (isConnected || isWalletConnecting) return;
+
+      try {
+        setIsWalletConnecting(true);
+
+        // Try to connect using MiniKit's embedded wallet
+        const miniKitConnector = connectors.find(
+          (connector) =>
+            connector.name.toLowerCase().includes("minikit") ||
+            connector.name.toLowerCase().includes("smart wallet"),
+        );
+
+        if (miniKitConnector) {
+          console.log("🔗 Auto-connecting wallet via MiniKit...");
+          await connect({ connector: miniKitConnector });
+        } else {
+          // Fallback to first available connector
+          const defaultConnector = connectors[0];
+          if (defaultConnector) {
+            console.log("🔗 Auto-connecting wallet via default connector...");
+            await connect({ connector: defaultConnector });
+          }
+        }
+      } catch (error) {
+        console.log(
+          "Auto-wallet connection failed (expected in development):",
+          error,
+        );
+        // This is expected when not in Farcaster context
+      } finally {
+        setIsWalletConnecting(false);
+      }
+    };
+
+    // Delay auto-connection slightly to let providers initialize
+    const timer = setTimeout(autoConnectWallet, 1000);
+    return () => clearTimeout(timer);
+  }, [isConnected, isWalletConnecting, connect, connectors]);
 
   const refreshUser = async () => {
     try {
@@ -64,7 +109,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
           setDbUser(userData);
 
           // TODO: Could trigger welcome flow for new users here
-          console.log("Welcome new user!", userData.display_name);
+          console.log("✨ Welcome new user!", userData.display_name);
         }
       }
     } catch (error) {
@@ -97,17 +142,31 @@ export function UserProvider({ children }: { children: ReactNode }) {
   // Update wallet address when connected
   useEffect(() => {
     if (dbUser && address && dbUser.wallet_address !== address) {
+      console.log(
+        "💰 Updating wallet address for user:",
+        dbUser.username,
+        address,
+      );
       updateUserWallet(dbUser.fid, address).catch(console.error);
       setDbUser({ ...dbUser, wallet_address: address });
     }
   }, [address, dbUser]);
 
+  // Initial user data load
   useEffect(() => {
     refreshUser();
   }, []);
 
   return (
-    <UserContext.Provider value={{ dbUser, setDbUser, isLoading, refreshUser }}>
+    <UserContext.Provider
+      value={{
+        dbUser,
+        setDbUser,
+        isLoading,
+        refreshUser,
+        isWalletConnecting,
+      }}
+    >
       {children}
     </UserContext.Provider>
   );

@@ -14,7 +14,7 @@ import Link from "next/link";
 
 export default function ListPage() {
   const { isConnected } = useAccount();
-  const { dbUser } = useUser();
+  const { dbUser, isWalletConnecting } = useUser();
   const { ownedNFTs, isLoading: nftsLoading } = useUserNFTs();
   const { createListing } = useMarketplace();
   const [selectedNFT, setSelectedNFT] = useState<string | null>(null);
@@ -62,11 +62,19 @@ export default function ListPage() {
         </header>
 
         <div className="p-4 text-center py-12">
-          <p className="font-black uppercase mb-4">WALLET NOT CONNECTED</p>
-          <p className="text-sm mb-4">
-            Connect your wallet to list NFTs for sale
+          <p className="font-black uppercase mb-4">
+            {isWalletConnecting
+              ? "CONNECTING WALLET..."
+              : "WALLET NOT CONNECTED"}
           </p>
-          <Button>CONNECT WALLET</Button>
+          <p className="text-sm mb-4">
+            {isWalletConnecting
+              ? "Please wait while we connect your wallet"
+              : "Your wallet will auto-connect when you open this in Farcaster"}
+          </p>
+          {isWalletConnecting && (
+            <div className="w-6 h-6 bg-primary animate-spin rounded-full mx-auto"></div>
+          )}
         </div>
       </div>
     );
