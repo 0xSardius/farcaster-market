@@ -9,9 +9,12 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { ArrowLeft, Heart, ShoppingBag, Share2, Eye } from "lucide-react";
 import Link from "next/link";
+import { Avatar, Identity, Name, Address } from "@coinbase/onchainkit/identity";
+import { useMiniKit } from "@coinbase/onchainkit/minikit";
 
 export default function ProfilePage() {
-  const { dbUser, walletAddress, isFrameReady } = useUser();
+  const { dbUser, walletAddress } = useUser();
+  const { isFrameReady } = useMiniKit();
   const [activity, setActivity] = useState<Activity[]>([]);
   const [favorites, setFavorites] = useState<UserFavorite[]>([]);
   const [activeTab, setActiveTab] = useState<"activity" | "favorites">(
@@ -73,7 +76,7 @@ export default function ProfilePage() {
     }
   };
 
-  if (!walletAddress || !dbUser || !isFrameReady) {
+  if (!dbUser || !isFrameReady) {
     return (
       <div className="min-h-screen bg-white">
         <header className="border-b-4 border-black bg-white p-4">
@@ -89,12 +92,12 @@ export default function ProfilePage() {
 
         <div className="p-4 text-center py-12">
           <p className="font-black uppercase mb-4">
-            {!isFrameReady ? "LOADING..." : "NOT CONNECTED"}
+            {!isFrameReady ? "LOADING..." : "USER NOT FOUND"}
           </p>
           <p className="text-sm mb-4">
             {!isFrameReady
               ? "Initializing app..."
-              : "Open this app in Farcaster to view your profile"}
+              : "Please open this app in Farcaster to view your profile"}
           </p>
           {!isFrameReady && (
             <div className="w-6 h-6 bg-primary animate-spin rounded-full mx-auto"></div>
@@ -121,18 +124,38 @@ export default function ProfilePage() {
       {/* User Info */}
       <div className="p-4 border-b-4 border-black bg-secondary">
         <div className="flex items-center space-x-4">
-          {dbUser.pfp_url && (
-            <img
-              src={dbUser.pfp_url}
-              alt={dbUser.username}
-              className="w-16 h-16 rounded-full border-4 border-black"
-            />
+          {walletAddress ? (
+            <Identity address={walletAddress as `0x${string}`}>
+              <Avatar className="w-16 h-16 border-4 border-black" />
+            </Identity>
+          ) : (
+            dbUser.pfp_url && (
+              <img
+                src={dbUser.pfp_url}
+                alt={dbUser.username}
+                className="w-16 h-16 rounded-full border-4 border-black"
+              />
+            )
           )}
           <div className="flex-1">
             <h2 className="text-xl font-black">
-              {dbUser.display_name || dbUser.username}
+              {walletAddress ? (
+                <Identity address={walletAddress as `0x${string}`}>
+                  <Name className="text-xl font-black" />
+                </Identity>
+              ) : (
+                dbUser.display_name || dbUser.username
+              )}
             </h2>
-            <p className="text-sm text-gray-600 mb-1">@{dbUser.username}</p>
+            <p className="text-sm text-gray-600 mb-1">
+              {walletAddress ? (
+                <Identity address={walletAddress as `0x${string}`}>
+                  <Address className="text-sm text-gray-600" />
+                </Identity>
+              ) : (
+                `@${dbUser.username}`
+              )}
+            </p>
             {dbUser.bio && (
               <p className="text-sm text-gray-700 line-clamp-2">{dbUser.bio}</p>
             )}

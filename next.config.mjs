@@ -41,6 +41,28 @@ const nextConfig = {
   eslint: {
     ignoreDuringBuilds: true,
   },
+
+  // Configure external image domains
+  images: {
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "picsum.photos",
+      },
+      {
+        protocol: "https",
+        hostname: "imagedelivery.net", // Farcaster profile images
+      },
+      {
+        protocol: "https",
+        hostname: "res.cloudinary.com", // Common NFT images
+      },
+      {
+        protocol: "https",
+        hostname: "ipfs.io", // IPFS images
+      },
+    ],
+  },
 };
 
 export default nextConfig;

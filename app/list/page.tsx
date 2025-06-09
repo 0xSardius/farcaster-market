@@ -10,9 +10,19 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { ArrowLeft, Plus, Loader2 } from "lucide-react";
 import Link from "next/link";
+import Image from "next/image";
+import { Avatar, Identity, Name } from "@coinbase/onchainkit/identity";
+import {
+  Wallet,
+  ConnectWallet,
+  WalletDropdown,
+  WalletDropdownDisconnect,
+} from "@coinbase/onchainkit/wallet";
+import { useMiniKit } from "@coinbase/onchainkit/minikit";
 
 export default function ListPage() {
-  const { dbUser, walletAddress, isFrameReady } = useUser();
+  const { dbUser, walletAddress } = useUser();
+  const { isFrameReady } = useMiniKit();
   const { ownedNFTs, isLoading: nftsLoading } = useUserNFTs();
   const { createListing } = useMarketplace();
   const [selectedNFT, setSelectedNFT] = useState<string | null>(null);
@@ -44,7 +54,7 @@ export default function ListPage() {
     }
   };
 
-  if (!walletAddress || !isFrameReady) {
+  if (!isFrameReady) {
     return (
       <div className="min-h-screen bg-white">
         {/* Header */}
@@ -60,17 +70,9 @@ export default function ListPage() {
         </header>
 
         <div className="p-4 text-center py-12">
-          <p className="font-black uppercase mb-4">
-            {!isFrameReady ? "LOADING..." : "WALLET NOT CONNECTED"}
-          </p>
-          <p className="text-sm mb-4">
-            {!isFrameReady
-              ? "Initializing app..."
-              : "Open this app in Farcaster to connect your wallet"}
-          </p>
-          {!isFrameReady && (
-            <div className="w-6 h-6 bg-primary animate-spin rounded-full mx-auto"></div>
-          )}
+          <p className="font-black uppercase mb-4">LOADING...</p>
+          <p className="text-sm mb-4">Initializing app...</p>
+          <div className="w-6 h-6 bg-primary animate-spin rounded-full mx-auto"></div>
         </div>
       </div>
     );
@@ -98,20 +100,54 @@ export default function ListPage() {
       {/* User Info */}
       {dbUser && (
         <div className="p-4 border-b-2 border-gray-200">
-          <div className="flex items-center space-x-3">
-            {dbUser.pfp_url && (
-              <img
-                src={dbUser.pfp_url}
-                alt={dbUser.username}
-                className="w-10 h-10 rounded-full border-2 border-black"
-              />
-            )}
-            <div>
-              <p className="font-black text-sm">
-                {dbUser.display_name || dbUser.username}
-              </p>
-              <p className="text-xs text-gray-600">Your NFTs</p>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-3">
+              {walletAddress ? (
+                <Identity
+                  address={walletAddress as `0x${string}`}
+                  className="flex items-center space-x-3"
+                >
+                  <Avatar className="w-10 h-10 border-2 border-black" />
+                  <div>
+                    <p className="font-black text-sm">
+                      <Name className="font-black text-sm" />
+                    </p>
+                    <p className="text-xs text-gray-600">Your NFTs</p>
+                  </div>
+                </Identity>
+              ) : (
+                dbUser.pfp_url && (
+                  <>
+                    <Image
+                      src={dbUser.pfp_url}
+                      alt={dbUser.username || "User"}
+                      width={40}
+                      height={40}
+                      className="w-10 h-10 rounded-full border-2 border-black"
+                    />
+                    <div>
+                      <p className="font-black text-sm">
+                        {dbUser.display_name || dbUser.username}
+                      </p>
+                      <p className="text-xs text-gray-600">Your NFTs</p>
+                    </div>
+                  </>
+                )
+              )}
             </div>
+
+            {!walletAddress && (
+              <div className="flex justify-end">
+                <Wallet>
+                  <ConnectWallet className="font-black text-xs">
+                    CONNECT WALLET
+                  </ConnectWallet>
+                  <WalletDropdown>
+                    <WalletDropdownDisconnect />
+                  </WalletDropdown>
+                </Wallet>
+              </div>
+            )}
           </div>
         </div>
       )}
@@ -129,7 +165,7 @@ export default function ListPage() {
           <div className="text-center py-12">
             <p className="font-black uppercase mb-2">NO NFTS FOUND</p>
             <p className="text-sm text-gray-600">
-              You don't have any NFTs to list yet
+              You don&apos;t have any NFTs to list yet
             </p>
           </div>
         ) : (
@@ -148,9 +184,11 @@ export default function ListPage() {
                   <div className="flex space-x-4">
                     <div className="w-16 h-16 bg-gray-200 border-2 border-black flex-shrink-0">
                       {nft.image && (
-                        <img
+                        <Image
                           src={nft.image}
                           alt={nft.name}
+                          width={64}
+                          height={64}
                           className="w-full h-full object-cover"
                           onError={(e) => {
                             (e.target as HTMLImageElement).style.display =
@@ -161,7 +199,7 @@ export default function ListPage() {
                     </div>
                     <div className="flex-1 min-w-0">
                       <Badge
-                        variant="secondary"
+                        variant="neutral"
                         className="text-xs font-black uppercase mb-2"
                       >
                         {nft.collection}

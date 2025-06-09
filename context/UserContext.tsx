@@ -21,7 +21,6 @@ interface UserContextType {
   isLoading: boolean;
   refreshUser: () => Promise<void>;
   walletAddress: string | null;
-  isFrameReady: boolean;
 }
 
 const UserContext = createContext<UserContextType | undefined>(undefined);
@@ -31,65 +30,57 @@ export function UserProvider({ children }: { children: ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
   const [walletAddress, setWalletAddress] = useState<string | null>(null);
 
-  const { setFrameReady, isFrameReady, context } = useMiniKit();
+  const { context } = useMiniKit();
 
-  // Initialize the frame and get wallet connection
+  // Check for wallet connection when context is available
   useEffect(() => {
-    const initializeFrame = async () => {
-      try {
-        // Call ready to hide splash screen
-        if (!isFrameReady) {
-          await setFrameReady();
-        }
+    const checkWallet = async () => {
+      console.log("🏦 Checking wallet availability...");
 
-        // Get the Frame SDK context for user data and wallet
-        const frameContext = await sdk.context;
+      // Check if wallet is available through Frame SDK
+      if (sdk.wallet && sdk.wallet.ethProvider) {
+        try {
+          console.log("💳 Requesting wallet accounts...");
+          // Request wallet accounts (this should be silent in Farcaster)
+          const accounts = (await sdk.wallet.ethProvider.request({
+            method: "eth_accounts",
+          })) as string[];
 
-        if (frameContext?.user) {
-          console.log("🎯 Frame context loaded:", frameContext.user);
-        }
-
-        // Check if wallet is available through Frame SDK
-        if (sdk.wallet && sdk.wallet.ethProvider) {
-          try {
-            // Request wallet accounts (this should be silent in Farcaster)
-            const accounts = (await sdk.wallet.ethProvider.request({
-              method: "eth_accounts",
+          if (accounts && accounts.length > 0) {
+            const address = accounts[0];
+            setWalletAddress(address);
+            console.log("🏦 Wallet connected:", address);
+          } else {
+            console.log("🔗 No accounts found, requesting connection...");
+            // Request connection if no accounts
+            const requestedAccounts = (await sdk.wallet.ethProvider.request({
+              method: "eth_requestAccounts",
             })) as string[];
 
-            if (accounts && accounts.length > 0) {
-              const address = accounts[0];
+            if (requestedAccounts && requestedAccounts.length > 0) {
+              const address = requestedAccounts[0];
               setWalletAddress(address);
-              console.log("🏦 Wallet connected:", address);
+              console.log("🏦 Wallet connected after request:", address);
             } else {
-              // Request connection if no accounts
-              const requestedAccounts = (await sdk.wallet.ethProvider.request({
-                method: "eth_requestAccounts",
-              })) as string[];
-
-              if (requestedAccounts && requestedAccounts.length > 0) {
-                const address = requestedAccounts[0];
-                setWalletAddress(address);
-                console.log("🏦 Wallet connected after request:", address);
-              }
+              console.log("❌ No wallet accounts available");
             }
-          } catch (walletError) {
-            console.log(
-              "💼 Wallet not available or connection failed:",
-              walletError,
-            );
           }
+        } catch (walletError) {
+          console.log(
+            "💼 Wallet not available or connection failed:",
+            walletError,
+          );
         }
-      } catch (error) {
-        console.log(
-          "🚫 Frame initialization failed (expected outside Farcaster):",
-          error,
-        );
+      } else {
+        console.log("❌ No wallet provider found in Frame SDK");
       }
     };
 
-    initializeFrame();
-  }, [setFrameReady, isFrameReady]);
+    // Only check wallet after we have MiniKit context
+    if (context) {
+      checkWallet();
+    }
+  }, [context]);
 
   // Load user data from MiniKit context and database
   const refreshUser = async () => {
@@ -153,18 +144,31 @@ export function UserProvider({ children }: { children: ReactNode }) {
 
   // Refresh user data when context or wallet changes
   useEffect(() => {
-    if (context || walletAddress) {
+    console.log(
+      "🔄 Context or wallet changed, attempting to load user data...",
+      {
+        hasContext: !!context?.user,
+        hasWallet: !!walletAddress,
+      },
+    );
+
+    if (context?.user || walletAddress) {
+      console.log("✅ Have context or wallet, loading user data");
       refreshUser();
+    } else {
+      console.log("⚠️ No context or wallet, checking for development mode");
+
+      // Add timeout to allow MiniKit context to initialize
+      const timeout = setTimeout(() => {
+        console.log(
+          "⏰ MiniKit context initialization timeout - no user found",
+        );
+        setIsLoading(false);
+      }, 3000); // Wait 3 seconds for MiniKit to initialize
+
+      return () => clearTimeout(timeout);
     }
   }, [context, walletAddress]);
-
-  // Initial user data load
-  useEffect(() => {
-    if (!context && !walletAddress) {
-      // Try to load user data even without context (for development)
-      refreshUser();
-    }
-  }, []);
 
   return (
     <UserContext.Provider
@@ -174,7 +178,6 @@ export function UserProvider({ children }: { children: ReactNode }) {
         isLoading,
         refreshUser,
         walletAddress,
-        isFrameReady,
       }}
     >
       {children}

@@ -1,5 +1,7 @@
 "use client";
 
+import { useEffect } from "react";
+import { useMiniKit } from "@coinbase/onchainkit/minikit";
 import { useUser } from "@/context/UserContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -8,12 +10,21 @@ import { Search, Home as HomeIcon, Grid3X3, Plus, User } from "lucide-react";
 import NFTGrid from "@/components/nft/NFTGrid";
 import { useMarketplace } from "@/hooks/useMarketplace";
 import Link from "next/link";
+import { Avatar, Identity, Name, Address } from "@coinbase/onchainkit/identity";
+import FallbackAvatar from "@/components/ui/fallback-avatar";
 
 export default function Home() {
-  const { dbUser, isLoading, walletAddress, isFrameReady } = useUser();
+  const { setFrameReady, isFrameReady } = useMiniKit();
+  const { dbUser, isLoading, walletAddress } = useUser();
   const { listings, listingsLoading } = useMarketplace();
 
-  // MiniKit initialization is handled in UserContext
+  // Initialize MiniKit frame when interface is ready
+  useEffect(() => {
+    if (!isFrameReady) {
+      console.log("🚀 Setting frame ready...");
+      setFrameReady();
+    }
+  }, [setFrameReady, isFrameReady]);
 
   return (
     <div className="min-h-screen bg-white">
@@ -31,31 +42,53 @@ export default function Home() {
           </div>
 
           <div className="flex items-center space-x-2">
-            {isLoading || isWalletConnecting ? (
+            {isLoading || !isFrameReady ? (
               <div className="flex items-center space-x-2">
                 <div className="w-6 h-6 bg-muted animate-pulse border-2 border-black rounded-full"></div>
                 <div className="text-xs font-black uppercase text-gray-500">
-                  {isWalletConnecting ? "CONNECTING..." : "LOADING..."}
+                  {!isFrameReady ? "INITIALIZING..." : "LOADING..."}
                 </div>
               </div>
             ) : dbUser ? (
               <div className="flex items-center space-x-2">
-                {dbUser.pfp_url && (
-                  <img
-                    src={dbUser.pfp_url}
-                    alt={dbUser.username}
-                    className="w-8 h-8 rounded-full border-2 border-black"
-                  />
+                {walletAddress ? (
+                  <Identity
+                    address={walletAddress as `0x${string}`}
+                    className="flex items-center space-x-2"
+                  >
+                    <Avatar className="w-8 h-8 border-2 border-black" />
+                    <div className="hidden sm:block">
+                      <div className="text-sm font-black uppercase">
+                        <Name className="text-sm font-black uppercase" />
+                      </div>
+                      <div className="text-xs text-gray-600">
+                        <Address className="text-xs text-gray-600" />
+                      </div>
+                    </div>
+                  </Identity>
+                ) : (
+                  dbUser.pfp_url && (
+                    <>
+                      <FallbackAvatar
+                        src={dbUser.pfp_url}
+                        alt={dbUser.username || "User"}
+                        width={32}
+                        height={32}
+                        className="w-8 h-8 rounded-full border-2 border-black"
+                        fallbackText={dbUser.display_name?.charAt(0) || "U"}
+                      />
+                      <div className="hidden sm:block">
+                        <div className="text-sm font-black uppercase">
+                          {dbUser.display_name}
+                        </div>
+                        <div className="text-xs text-gray-600">
+                          @{dbUser.username}
+                        </div>
+                      </div>
+                    </>
+                  )
                 )}
-                <div className="hidden sm:block">
-                  <div className="text-sm font-black uppercase">
-                    {dbUser.display_name}
-                  </div>
-                  <div className="text-xs text-gray-600">
-                    @{dbUser.username}
-                  </div>
-                </div>
-                {isConnected ? (
+                {walletAddress ? (
                   <div className="text-xs text-green-600 font-black">
                     ✓ WALLET
                   </div>
@@ -66,22 +99,32 @@ export default function Home() {
                 )}
               </div>
             ) : (
-              <div className="text-sm font-black uppercase text-gray-500">
-                INITIALIZING...
+              <div className="flex items-center space-x-2">
+                <div className="w-6 h-6 bg-muted border-2 border-black rounded-full"></div>
+                <div className="text-xs font-black uppercase text-gray-500">
+                  GUEST MODE
+                </div>
               </div>
             )}
           </div>
         </div>
 
         {/* Welcome Message */}
-        {dbUser && (
-          <div className="px-4 pb-2">
-            <p className="text-sm font-bold">
-              👋 Welcome back,{" "}
-              {dbUser.display_name || dbUser.username || `User #${dbUser.fid}`}!
-            </p>
-          </div>
-        )}
+        <div className="px-4 pb-2">
+          <p className="text-sm font-bold">
+            {dbUser ? (
+              <>
+                👋 Welcome back,{" "}
+                {dbUser.display_name ||
+                  dbUser.username ||
+                  `User #${dbUser.fid}`}
+                !
+              </>
+            ) : (
+              <>🌟 Welcome to Farcaster Market!</>
+            )}
+          </p>
+        </div>
 
         {/* Search Bar */}
         <div className="p-4 pt-0">
@@ -104,11 +147,11 @@ export default function Home() {
           </p>
           <Button
             className="font-black uppercase"
-            disabled={isLoading || isWalletConnecting}
+            disabled={isLoading || !isFrameReady}
           >
-            {isLoading || isWalletConnecting
-              ? "CONNECTING..."
-              : dbUser && isConnected
+            {isLoading || !isFrameReady
+              ? "INITIALIZING..."
+              : dbUser && walletAddress
                 ? "START TRADING"
                 : "ALMOST READY..."}
           </Button>
