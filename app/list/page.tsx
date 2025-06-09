@@ -12,12 +12,7 @@ import { ArrowLeft, Plus, Loader2 } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 import { Avatar, Identity, Name } from "@coinbase/onchainkit/identity";
-import {
-  Wallet,
-  ConnectWallet,
-  WalletDropdown,
-  WalletDropdownDisconnect,
-} from "@coinbase/onchainkit/wallet";
+import { WalletConnect } from "@/components/WalletConnect";
 import { useMiniKit } from "@coinbase/onchainkit/minikit";
 
 export default function ListPage() {
@@ -137,16 +132,7 @@ export default function ListPage() {
             </div>
 
             {!walletAddress && (
-              <div className="flex justify-end">
-                <Wallet>
-                  <ConnectWallet className="font-black text-xs">
-                    CONNECT WALLET
-                  </ConnectWallet>
-                  <WalletDropdown>
-                    <WalletDropdownDisconnect />
-                  </WalletDropdown>
-                </Wallet>
-              </div>
+              <WalletConnect />
             )}
           </div>
         </div>

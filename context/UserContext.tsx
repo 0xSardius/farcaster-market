@@ -42,14 +42,8 @@ export function UserProvider({ children }: { children: ReactNode }) {
 
       // Check if we have MiniKit context
       if (!context?.user) {
-        console.log("⚠️ No MiniKit context available, waiting...");
-        
-        // In development, MiniKit context might not be available
-        // Set a timeout to stop loading after a reasonable time
-        setTimeout(() => {
-          console.log("⏰ Development mode - stopping loading");
-          setIsLoading(false);
-        }, 2000);
+        console.log("⚠️ No MiniKit context available - app must run in Farcaster");
+        setIsLoading(false);
         return;
       }
 

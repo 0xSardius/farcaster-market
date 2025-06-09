@@ -1,52 +1,53 @@
 "use client";
 
-import { useAccount, useConnect, useDisconnect } from "wagmi";
-import { Button } from "@/components/ui/button";
-import { Wallet, Loader2 } from "lucide-react";
+import { 
+  ConnectWallet,
+  Wallet,
+  WalletDropdown,
+  WalletDropdownBasename,
+  WalletDropdownFundLink,
+  WalletDropdownLink,
+  WalletDropdownDisconnect,
+} from '@coinbase/onchainkit/wallet';
+import {
+  Address,
+  Avatar,
+  Name,
+  Identity,
+  EthBalance,
+} from '@coinbase/onchainkit/identity';
+import { color } from '@coinbase/onchainkit/theme';
 
 export function WalletConnect() {
-  const { address, isConnected, isConnecting } = useAccount();
-  const { connect, connectors, isPending } = useConnect();
-  const { disconnect } = useDisconnect();
-
-  const handleConnect = async () => {
-    const connector = connectors[0];
-    if (connector) {
-      try {
-        await connect({ connector });
-      } catch (error) {
-        console.log("Connection failed:", error);
-      }
-    }
-  };
-
-  if (isConnecting || isPending) {
-    return (
-      <Button disabled>
-        <Loader2 className="w-4 h-4 animate-spin mr-2" />
-        CONNECTING...
-      </Button>
-    );
-  }
-
-  if (isConnected && address) {
-    return (
-      <div className="flex items-center space-x-2">
-        <div className="text-xs">
-          <span className="font-black">WALLET:</span> {address.slice(0, 6)}...
-          {address.slice(-4)}
-        </div>
-        <Button variant="outline" size="sm" onClick={() => disconnect()}>
-          DISCONNECT
-        </Button>
-      </div>
-    );
-  }
-
   return (
-    <Button onClick={handleConnect}>
-      <Wallet className="w-4 h-4 mr-2" />
-      CONNECT WALLET
-    </Button>
+    <div className="flex justify-end">
+      <Wallet>
+        <ConnectWallet>
+          <Avatar className="h-8 w-8 border-2 border-black" />
+          <Name className="text-sm font-black uppercase" />
+        </ConnectWallet>
+        <WalletDropdown>
+          <Identity 
+            className="px-4 pt-3 pb-2" 
+            hasCopyAddressOnClick
+          >
+            <Avatar className="h-12 w-12 border-2 border-black" />
+            <Name className="font-black" />
+            <Address className={color.foregroundMuted} />
+            <EthBalance />
+          </Identity>
+          <WalletDropdownBasename />
+          <WalletDropdownLink 
+            icon="wallet" 
+            href="https://keys.coinbase.com"
+            target="_blank"
+          >
+            Wallet
+          </WalletDropdownLink>
+          <WalletDropdownFundLink />
+          <WalletDropdownDisconnect />
+        </WalletDropdown>
+      </Wallet>
+    </div>
   );
 }
