@@ -8,6 +8,7 @@ import {
   ReactNode,
 } from "react";
 import { useMiniKit } from "@coinbase/onchainkit/minikit";
+import { useAccount } from 'wagmi';
 import {
   createOrUpdateUser,
   getUserByFid,
@@ -30,6 +31,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
   const [walletAddress, setWalletAddress] = useState<string | null>(null);
 
   const { context } = useMiniKit();
+  const { address } = useAccount();
 
   // Load user data from MiniKit context
   useEffect(() => {
@@ -53,8 +55,11 @@ export function UserProvider({ children }: { children: ReactNode }) {
         
         console.log("📱 MiniKit user data:", userData);
 
-        // Extract wallet address if available in context
-        // Note: Wallet connection will be handled by OnchainKit components
+        // Update wallet address when user connects wallet
+        if (address) {
+          setWalletAddress(address);
+          console.log("💳 Wallet connected:", address);
+        }
 
         // Check if user exists in database
         const existingUser = await getUserByFid(userData.fid);
@@ -92,7 +97,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
     };
 
     loadUserData();
-  }, [context]);
+  }, [context, address]);
 
   const refreshUser = async () => {
     if (!context?.user) return;
