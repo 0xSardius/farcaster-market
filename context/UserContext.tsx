@@ -36,15 +36,19 @@ export function UserProvider({ children }: { children: ReactNode }) {
   // Load user data from MiniKit context
   useEffect(() => {
     const loadUserData = async () => {
-      console.log("🔄 Loading user data...", { 
-        context: !!context, 
-        contextUser: !!context?.user,
-        contextDetails: context 
+      console.log("🔄 MiniKit Context Debug:", { 
+        hasContext: !!context,
+        hasUser: !!context?.user,
+        userFid: context?.user?.fid,
+        contextFull: context,
+        isClient: typeof window !== 'undefined',
+        userAgent: typeof window !== 'undefined' ? window.navigator.userAgent : 'server',
+        hostname: typeof window !== 'undefined' ? window.location.hostname : 'server'
       });
 
       // Check if we have MiniKit context
       if (!context?.user) {
-        console.log("⚠️ No MiniKit context available - app must run in Farcaster");
+        console.log("⚠️ No MiniKit user context - waiting for authentication or frame context");
         setIsLoading(false);
         return;
       }

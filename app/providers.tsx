@@ -12,10 +12,10 @@ export function Providers({ children }: { children: React.ReactNode }) {
       chain={Base}
       config={{
         appearance: {
-          name: "Farcaster Market",
-          logo: "/logo.png",
           mode: "light",
           theme: "base",
+          name: "Farcaster Market",
+          logo: "/logo.png",
         },
       }}
     >

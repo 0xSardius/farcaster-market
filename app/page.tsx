@@ -12,6 +12,7 @@ import { useMarketplace } from "@/hooks/useMarketplace";
 import Link from "next/link";
 import { Avatar, Identity, Name, Address } from "@coinbase/onchainkit/identity";
 import FallbackAvatar from "@/components/ui/fallback-avatar";
+import { FarcasterSignIn } from "@/components/FarcasterSignIn";
 
 export default function Home() {
   const { setFrameReady, isFrameReady } = useMiniKit();
@@ -157,6 +158,13 @@ export default function Home() {
           </Button>
         </div>
       </section>
+
+      {/* Authentication Section - Show when not authenticated */}
+      {!dbUser && !isLoading && isFrameReady && (
+        <section className="p-4 border-b-4 border-black">
+          <FarcasterSignIn />
+        </section>
+      )}
 
       {/* Filter Tabs */}
       <section className="p-4 border-b-4 border-black">
