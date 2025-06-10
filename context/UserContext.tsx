@@ -41,6 +41,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
         hasUser: !!context?.user,
         userFid: context?.user?.fid,
         contextFull: context,
+        wagmiAddress: address,
         isClient: typeof window !== 'undefined',
         userAgent: typeof window !== 'undefined' ? window.navigator.userAgent : 'server',
         hostname: typeof window !== 'undefined' ? window.location.hostname : 'server'

@@ -13,6 +13,7 @@ import Link from "next/link";
 import { Avatar, Identity, Name, Address } from "@coinbase/onchainkit/identity";
 import FallbackAvatar from "@/components/ui/fallback-avatar";
 import { FarcasterSignIn } from "@/components/FarcasterSignIn";
+import { AutoWalletConnect } from "@/components/AutoWalletConnect";
 
 export default function Home() {
   const { setFrameReady, isFrameReady } = useMiniKit();
@@ -29,6 +30,9 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-white">
+      {/* Auto-connect wallet after Farcaster auth */}
+      <AutoWalletConnect />
+      
       {/* Header */}
       <header className="border-b-4 border-black bg-white">
         <div className="flex items-center justify-between p-4">
@@ -165,6 +169,8 @@ export default function Home() {
           <FarcasterSignIn />
         </section>
       )}
+
+      {/* Note: Wallet auto-connects after Farcaster authentication */}
 
       {/* Filter Tabs */}
       <section className="p-4 border-b-4 border-black">

@@ -19,10 +19,15 @@ import {
 import { color } from '@coinbase/onchainkit/theme';
 
 export function WalletConnect() {
+  const handleWalletConnect = () => {
+    console.log("💳 Wallet connected automatically after Farcaster auth");
+    // Optional: Add any post-connection logic here
+  };
+
   return (
     <div className="flex justify-end">
       <Wallet>
-        <ConnectWallet>
+        <ConnectWallet onConnect={handleWalletConnect}>
           <Avatar className="h-8 w-8 border-2 border-black" />
           <Name className="text-sm font-black uppercase" />
         </ConnectWallet>
