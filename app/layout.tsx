@@ -1,5 +1,5 @@
 import "./globals.css";
-import { Providers } from "./providers";
+import { ProvidersClean as Providers } from "./providers-clean";
 import { Inter } from "next/font/google";
 
 const inter = Inter({

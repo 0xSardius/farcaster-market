@@ -4,7 +4,7 @@ import { OnchainKitProvider } from "@coinbase/onchainkit";
 import { MiniKitProvider } from "@coinbase/onchainkit/minikit";
 import { ThirdwebProvider } from "@thirdweb-dev/react";
 import { Base } from "@thirdweb-dev/chains";
-import { UserProvider } from "@/context/UserContext";
+import { UserProvider } from "@/context/UserContext-clean";
 
 export function ProvidersClean({ children }: { children: React.ReactNode }) {
   const baseChain = {
