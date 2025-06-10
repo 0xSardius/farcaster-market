@@ -76,7 +76,7 @@ export default function ProfilePage() {
     }
   };
 
-  if (!dbUser || !isFrameReady) {
+  if (!dbUser) {
     return (
       <div className="min-h-screen bg-white">
         <header className="border-b-4 border-black bg-white p-4">
@@ -91,17 +91,10 @@ export default function ProfilePage() {
         </header>
 
         <div className="p-4 text-center py-12">
-          <p className="font-black uppercase mb-4">
-            {!isFrameReady ? "LOADING..." : "USER NOT FOUND"}
-          </p>
+          <p className="font-black uppercase mb-4">USER NOT FOUND</p>
           <p className="text-sm mb-4">
-            {!isFrameReady
-              ? "Initializing app..."
-              : "Please open this app in Farcaster to view your profile"}
+            Please open this app in Farcaster to view your profile
           </p>
-          {!isFrameReady && (
-            <div className="w-6 h-6 bg-primary animate-spin rounded-full mx-auto"></div>
-          )}
         </div>
       </div>
     );

@@ -49,7 +49,7 @@ export default function ListPage() {
     }
   };
 
-  if (!isFrameReady) {
+  if (!dbUser) {
     return (
       <div className="min-h-screen bg-white">
         {/* Header */}
@@ -65,9 +65,8 @@ export default function ListPage() {
         </header>
 
         <div className="p-4 text-center py-12">
-          <p className="font-black uppercase mb-4">LOADING...</p>
-          <p className="text-sm mb-4">Initializing app...</p>
-          <div className="w-6 h-6 bg-primary animate-spin rounded-full mx-auto"></div>
+          <p className="font-black uppercase mb-4">USER NOT FOUND</p>
+          <p className="text-sm mb-4">Please open this app in Farcaster to view your NFTs</p>
         </div>
       </div>
     );
