@@ -12,8 +12,8 @@ import { useMarketplace } from "@/hooks/useMarketplace";
 import Link from "next/link";
 import { Avatar, Identity, Name, Address } from "@coinbase/onchainkit/identity";
 import FallbackAvatar from "@/components/ui/fallback-avatar";
-import { FarcasterSignIn } from "@/components/FarcasterSignIn";
-import { AutoWalletConnect } from "@/components/AutoWalletConnect";
+import { HeaderSignIn } from "@/components/HeaderSignIn";
+import { WalletConnect } from "@/components/WalletConnect";
 
 export default function Home() {
   const { setFrameReady, isFrameReady } = useMiniKit();
@@ -30,9 +30,6 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-white">
-      {/* Auto-connect wallet after Farcaster auth */}
-      <AutoWalletConnect />
-      
       {/* Header */}
       <header className="border-b-4 border-black bg-white">
         <div className="flex items-center justify-between p-4">
@@ -98,8 +95,13 @@ export default function Home() {
                     ✓ WALLET
                   </div>
                 ) : (
-                  <div className="text-xs text-orange-600 font-black">
-                    ○ WALLET
+                  <div className="flex items-center space-x-2">
+                    <div className="text-xs text-orange-600 font-black">
+                      ○ WALLET
+                    </div>
+                    <div className="scale-75">
+                      <WalletConnect />
+                    </div>
                   </div>
                 )}
               </div>
@@ -109,6 +111,7 @@ export default function Home() {
                 <div className="text-xs font-black uppercase text-gray-500">
                   GUEST MODE
                 </div>
+                <HeaderSignIn />
               </div>
             )}
           </div>
@@ -163,14 +166,9 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Authentication Section - Show when not authenticated */}
-      {!dbUser && !isLoading && isFrameReady && (
-        <section className="p-4 border-b-4 border-black">
-          <FarcasterSignIn />
-        </section>
-      )}
+      {/* Authentication now handled in header */}
 
-      {/* Note: Wallet auto-connects after Farcaster authentication */}
+      {/* MiniKit automatically handles wallet connection */}
 
       {/* Filter Tabs */}
       <section className="p-4 border-b-4 border-black">
