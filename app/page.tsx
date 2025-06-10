@@ -2,7 +2,7 @@
 
 import { useEffect } from "react";
 import { useMiniKit } from "@coinbase/onchainkit/minikit";
-import { useUser } from "@/context/UserContext";
+import { useUser } from "@/context/UserContext-clean";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";

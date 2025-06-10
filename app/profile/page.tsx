@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useUser } from "@/context/UserContext";
+import { useUser } from "@/context/UserContext-clean";
 import { getUserActivity, getUserFavorites } from "@/lib/supabase";
 import type { Activity, UserFavorite } from "@/lib/supabase";
 import { Button } from "@/components/ui/button";

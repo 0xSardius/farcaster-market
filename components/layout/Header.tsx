@@ -2,7 +2,7 @@
 
 import { Search, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useUser } from "@/context/UserContext";
+import { useUser } from "@/context/UserContext-clean";
 
 export default function Header() {
   const { dbUser } = useUser();
