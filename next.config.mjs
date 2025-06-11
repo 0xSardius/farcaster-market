@@ -42,6 +42,10 @@ const nextConfig = {
     ignoreDuringBuilds: true,
   },
 
+  // ADDED: Fix SSR issues
+  staticPageGenerationTimeout: 1000,
+  poweredByHeader: false,
+
   // Configure external image domains
   images: {
     remotePatterns: [

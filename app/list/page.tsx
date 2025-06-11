@@ -1,7 +1,9 @@
+// Force client-side rendering for Farcaster miniapp
+export const dynamic = 'force-dynamic';
+
 "use client";
 
 import { useState, useEffect } from "react";
-import dynamic from "next/dynamic";
 import { useUser } from "@/context/UserContext-clean";
 import { useUserNFTs } from "@/hooks/useUserNFTs";
 import { useMarketplace } from "@/hooks/useMarketplace";

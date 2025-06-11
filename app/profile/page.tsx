@@ -1,3 +1,6 @@
+// Force client-side rendering for Farcaster miniapp
+export const dynamic = 'force-dynamic';
+
 "use client";
 
 import { useEffect, useState } from "react";
