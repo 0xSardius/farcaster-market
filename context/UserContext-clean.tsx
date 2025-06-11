@@ -7,7 +7,7 @@ import {
   useEffect,
   ReactNode,
 } from "react";
-import { useMiniKit } from "@coinbase/onchainkit/minikit";
+import { useSafeMiniKit } from "@/hooks/useSafeMiniKit";
 import {
   createOrUpdateUser,
   getUserByFid,
@@ -28,8 +28,15 @@ export function UserProvider({ children }: { children: ReactNode }) {
   const [dbUser, setDbUser] = useState<DBUser | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [walletAddress, setWalletAddress] = useState<string | null>(null);
+  const [isMounted, setIsMounted] = useState(false);
 
-  const { context } = useMiniKit();
+  // Only run on client side
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
+  // Use safe MiniKit hook that handles SSR
+  const { context } = useSafeMiniKit();
 
   // Load user data from MiniKit context
   useEffect(() => {

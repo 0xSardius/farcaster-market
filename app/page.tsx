@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect } from "react";
-import { useMiniKit } from "@coinbase/onchainkit/minikit";
+import dynamic from "next/dynamic";
+import { useSafeMiniKit } from "@/hooks/useSafeMiniKit";
 import { useUser } from "@/context/UserContext-clean";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -16,7 +17,7 @@ import { HeaderSignIn } from "@/components/HeaderSignIn";
 import { WalletConnect } from "@/components/WalletConnect";
 
 export default function Home() {
-  const { setFrameReady, isFrameReady } = useMiniKit();
+  const { setFrameReady, isFrameReady } = useSafeMiniKit();
   const { dbUser, isLoading, walletAddress } = useUser();
   const { listings, listingsLoading } = useMarketplace();
 

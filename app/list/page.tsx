@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import dynamic from "next/dynamic";
 import { useUser } from "@/context/UserContext-clean";
 import { useUserNFTs } from "@/hooks/useUserNFTs";
 import { useMarketplace } from "@/hooks/useMarketplace";
