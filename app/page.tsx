@@ -53,7 +53,7 @@ export default function Home() {
               </div>
             ) : dbUser ? (
               <div className="flex items-center space-x-2">
-                {walletAddress ? (
+                                {walletAddress ? (
                   <Identity
                     address={walletAddress as `0x${string}`}
                     className="flex items-center space-x-2"

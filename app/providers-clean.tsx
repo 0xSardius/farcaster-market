@@ -2,8 +2,7 @@
 
 import { OnchainKitProvider } from "@coinbase/onchainkit";
 import { MiniKitProvider } from "@coinbase/onchainkit/minikit";
-import { ThirdwebProvider } from "@thirdweb-dev/react";
-import { Base } from "@thirdweb-dev/chains";
+// Removed ThirdwebProvider - MiniKit handles wallet management
 import { UserProvider } from "@/context/UserContext-clean";
 
 export function ProvidersClean({ children }: { children: React.ReactNode }) {
@@ -35,19 +34,9 @@ export function ProvidersClean({ children }: { children: React.ReactNode }) {
       }}
     >
       <MiniKitProvider chain={baseChain}>
-        {/* Thirdweb for contract interactions only - no wallet connection */}
-        <ThirdwebProvider
-          activeChain={Base}
-          clientId={process.env.NEXT_PUBLIC_THIRDWEB_CLIENT_ID}
-          supportedChains={[Base]}
-          // Don't auto-connect wallet - let MiniKit handle that
-          autoConnect={false}
-          supportedWallets={[]}
-        >
-          <UserProvider>
-            <div className="min-h-screen bg-white">{children}</div>
-          </UserProvider>
-        </ThirdwebProvider>
+        <UserProvider>
+          <div className="min-h-screen bg-white">{children}</div>
+        </UserProvider>
       </MiniKitProvider>
     </OnchainKitProvider>
   );
